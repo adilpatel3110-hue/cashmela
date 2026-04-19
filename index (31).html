@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CashMela CAM Analyzer</title>
+<style>
+:root{--primary:#1a56db;--primary-dark:#1e3a8a;--surface:#fff;--bg:#f1f5f9;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--success:#16a34a;--danger:#dc2626;--warn:#d97706;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+.wrap{max-width:1400px;margin:0 auto;padding:16px}
+
+/* Header */
+.header{background:var(--primary-dark);color:#fff;border-radius:var(--radius);padding:18px 24px;margin-bottom:14px;display:flex;align-items:center;gap:14px;border-bottom:3px solid var(--primary)}
+.header h1{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.header p{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px}
+
+/* Cards */
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:18px;margin-bottom:12px}
+
+/* Form */
+.fld{margin-bottom:10px}
+.fld label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.fld input,.fld select{width:100%;height:36px;border:1.5px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;font-weight:600;background:#fff;outline:none;color:var(--text)}
+.fld input[type=file]{height:auto;padding:6px 10px;font-size:12px;cursor:pointer}
+.fld input:focus,.fld select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* Buttons — scoped, no global button rule */
+.btn-primary{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-primary:hover{opacity:.88}
+.btn-primary:disabled{background:#94a3b8;cursor:not-allowed}
+.btn-action{background:var(--primary-dark);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+.btn-action:hover{opacity:.88}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+/* KPI bar — 4 col, neutral palette with accent border */
+.kpi-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-top:3px solid var(--primary)}
+.k{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:3px}
+.v{font-size:22px;font-weight:800;color:var(--text);line-height:1.1}
+/* accent colours via border-top only */
+.k1{border-top-color:#6366f1}.k2{border-top-color:var(--success)}.k3{border-top-color:var(--warn)}.k4{border-top-color:var(--danger)}.k5{border-top-color:#0891b2}.k6{border-top-color:#7c3aed}.k7{border-top-color:#db2777}.k8{border-top-color:var(--primary)}
+
+/* Live bar */
+#livebar{display:none;border-radius:var(--radius);overflow:hidden;margin-bottom:12px;background:var(--primary-dark);flex-wrap:wrap}
+
+/* Download bar */
+#downloadBar{display:none;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:10px 16px;margin-bottom:12px;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.tab{padding:7px 14px;border-radius:8px;background:#e2e8f0;font-size:12px;font-weight:700;cursor:pointer;border:none;color:#475569;white-space:nowrap;transition:all .15s}
+.tab.on{background:var(--primary-dark);color:#fff}
+.tab:hover:not(.on){background:#cbd5e1}
+.panel{display:none}.panel.on{display:block}
+
+/* Sub sections */
+.sub{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.sub h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--primary-dark);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* Tables */
+.cam-wrap{overflow-x:auto}
+table.cam{width:100%;border-collapse:collapse;font-size:12px}
+table.cam th{background:var(--primary-dark);color:#fff;padding:8px 8px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:1}
+table.cam td{padding:8px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+table.cam tr:hover td{background:#f8fafc}
+.cam-hi td{background:#f0fdf4!important;font-weight:800}
+
+/* Callouts */
+.callout{border-radius:10px;padding:12px 16px;margin-bottom:10px;font-size:12px}
+.call-red{background:#fef2f2;border-left:4px solid var(--danger);color:#991b1b}
+.call-amber{background:#fffbeb;border-left:4px solid var(--warn);color:#92400e}
+.call-green{background:#f0fdf4;border-left:4px solid var(--success);color:#166534}
+.call-blue{background:#eff6ff;border-left:4px solid var(--primary);color:#1e40af}
+
+/* Tags */
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;text-transform:uppercase}
+.t-blue{background:#dbeafe;color:#1e40af}.t-amber{background:#fef3c7;color:#92400e}.t-green{background:#dcfce7;color:#166534}.t-gray{background:#f1f5f9;color:#475569}
+
+/* Misc */
+.small{font-size:10px;color:#9ca3af}
+.err-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 16px;color:var(--danger);font-weight:700;margin-bottom:12px;display:none}
+.snap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.snap-box{background:#f8fafc;border-radius:8px;padding:10px 14px}
+.snap-label{font-size:10px;text-transform:uppercase;font-weight:800;color:var(--muted);margin-bottom:2px}
+.snap-val{font-size:14px;font-weight:800;color:var(--text)}
+
+/* Loading spinner */
+#loadingSpinner{display:none;text-align:center;padding:48px;color:var(--muted)}
+#loadingSpinner .spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+
+/* Responsive */
+@media(max-width:768px){
+  .kpi-bar{grid-template-columns:repeat(2,1fr)}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .grid3>div+div{padding-top:10px;margin-top:10px;border-top:1px solid var(--border)}
+  #downloadBar button{flex:1;min-width:140px}
+}
+@media(max-width:480px){.kpi-bar{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div style="width:44px;height:44px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">💳</div>
+    <div><h1>CashMela CAM Analyzer</h1><p>Credit Assessment Module — Bureau Report Underwriting</p></div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div id="settingsPanel" style="display:none;background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+      <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-dark)">⚙️ Settings — Enter once, saved in browser</div>
+      <button class="btn-action" style="background:#64748b;font-size:11px" onclick="document.getElementById('settingsPanel').style.display='none'">✕ Close</button>
+    </div>
+    <div class="grid3">
+      <div>
+        <div class="fld"><label>Your Name</label><input id="empName" type="text" placeholder="e.g. Adil"></div>
+        <div class="fld"><label>Claude API Key</label><input id="apiKey" type="password" placeholder="sk-ant-..."></div>
+      </div>
+      <div>
+        <div class="fld"><label>CRIF API Token</label><input id="crifToken" type="password" placeholder="Your CRIF token"></div>
+        <div class="fld"><label>CRIF API Endpoint URL</label><input id="crifUrl" type="text" placeholder="https://sandbox.surepass.io/api/v1/credit-report-crif/fetch-report-pdf"></div>
+      </div>
+      <div>
+        <div class="fld"><label>Google Drive Folder ID</label><input id="driveFolder" type="text" value="11HMd1o63ayoJ7BX0VWnLCLsrja1zBO14" readonly style="background:#f8fafc;font-size:11px"></div>
+        <div class="fld"><label>Google Sheet ID</label><input id="sheetIdDisplay" type="text" value="1piNu4adtOYPL2LQvudkr6gjkV8MxtCGkNhfQMvEzZ5U" readonly style="background:#f8fafc;font-size:11px"></div>
+        <button class="btn-primary" style="width:100%;margin-top:4px" onclick="saveSettings()">💾 Save My Settings</button>
+      </div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:11px;color:#92400e;margin-top:10px;font-weight:700">
+      🔐 Google OAuth Credentials — required for Drive/Sheets auto-save
+    </div>
+    <div class="grid3" style="margin-top:8px">
+      <div class="fld"><label>Google Client ID</label><input id="gClientId" type="text" placeholder="xxxx.apps.googleusercontent.com"></div>
+      <div class="fld"><label>Google Client Secret</label><input id="gClientSecret" type="password" placeholder="GOCSPX-..."></div>
+      <div class="fld"><label>Google Refresh Token</label><input id="gRefreshToken" type="password" placeholder="1//04..."></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <!-- Top row: employee + settings toggle -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:700;color:var(--primary-dark)">
+        👤 Logged in as: <span id="empNameDisplay" style="color:var(--primary)">Not set — enter settings above</span>
+      </div>
+      <button class="btn-action" style="background:#64748b" onclick="var p=document.getElementById('settingsPanel');p.style.display=p.style.display==='none'?'block':'none'">⚙️ Settings</button>
+    </div>
+
+    <!-- CRIF Pull Section -->
+    <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:12px;font-weight:800;color:#166534;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">🔗 Pull Bureau from CRIF</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end">
+        <div class="fld" style="margin:0"><label>Customer Name</label><input id="crifName" type="text" placeholder="Full name as per PAN"></div>
+        <div class="fld" style="margin:0"><label>Mobile Number</label><input id="crifMobile" type="tel" placeholder="10-digit mobile" maxlength="10"></div>
+        <div class="fld" style="margin:0"><label>PAN Number</label><input id="crifPan" type="text" placeholder="ABCDE1234F" maxlength="10" style="text-transform:uppercase"></div>
+        <button class="btn-primary" id="crifBtn" onclick="pullCrif()" style="height:36px;white-space:nowrap">Pull CRIF Report</button>
+      </div>
+      <div id="crifStatus" style="font-size:11px;margin-top:8px;color:#64748b"></div>
+    </div>
+
+    <!-- OR divider -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted)">OR UPLOAD PDF MANUALLY</div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <div class="grid3">
+      <div>
+        <div class="fld"><label>Net Monthly Salary (₹)</label><input id="salary" type="number" value="0" oninput="recalcIfLoaded()"></div>
+        <div class="fld"><label>Manual EMI (₹)</label><input id="manualEmi" type="number" value="0" oninput="recalcIfLoaded()"></div>
+        <div class="fld"><label>Required Loan (₹)</label><input id="reqLoan" type="number" value="0" oninput="recalcIfLoaded()"></div>
+      </div>
+      <div>
+        <div class="fld"><label>FOIR % Allowed</label>
+          <select id="foir" oninput="recalcIfLoaded()">
+            <option value="40">40%</option>
+            <option value="45">45%</option>
+            <option value="50" selected>50%</option>
+            <option value="55">55%</option>
+            <option value="60">60%</option>
+            <option value="65">65%</option>
+            <option value="70">70%</option>
+            <option value="75">75%</option>
+            <option value="80">80%</option>
+          </select>
+        </div>
+        <div class="fld"><label>Interest Rate (% p.a.)</label><input id="roi" type="number" value="18" step="0.01" oninput="recalcIfLoaded()"></div>
+        <div class="fld"><label>Tenure (months)</label>
+          <select id="reqTenure" oninput="recalcIfLoaded()">
+            <option value="12">12 months (1 yr)</option>
+            <option value="24">24 months (2 yr)</option>
+            <option value="36" selected>36 months (3 yr)</option>
+            <option value="48">48 months (4 yr)</option>
+            <option value="60">60 months (5 yr)</option>
+            <option value="72">72 months (6 yr)</option>
+            <option value="84">84 months (7 yr)</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="fld"><label>Upload Bureau PDF</label><input type="file" id="pdfInput" accept=".pdf" onchange="fileSelected(this)"></div>
+        <div class="btns">
+          <button id="goBtn" class="btn-primary" disabled onclick="analyzeUploadedPdf()">Analyze PDF</button>
+          <button class="btn-action" onclick="loanOverrides={};loadDemo();setTimeout(function(){var r=document.getElementById('resultArea');if(r)r.scrollIntoView({behavior:'smooth'});},300)">Load Demo</button>
+        </div>
+        <div style="height:6px"></div>
+        <div style="background:#eff6ff;border-radius:8px;padding:8px 12px;font-size:11px;color:#1e40af">
+          📁 Reports auto-save to Google Drive after each analysis
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="err-box" id="errBox"></div>
+  <div id="loadingSpinner"><div class="spin"></div><div style="font-size:13px;font-weight:600">Analyzing bureau report…</div></div>
+
+  <div class="kpi-bar" id="topKpis" style="display:none"></div>
+
+  <div id="livebar"></div>
+  <div id="riskbar" style="display:none;background:#fff3f3;border:1.5px solid #fecaca;border-radius:12px;padding:10px 16px;margin-bottom:10px;font-size:11px">
+    <span style="font-weight:900;color:#dc2626">⚠️ Risk Flags: </span>
+    <span id="riskbarContent"></span>
+  </div>
+
+  <div id="downloadBar" style="display:none;background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.07);padding:12px 18px;margin-bottom:12px;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="font-size:11px;font-weight:700;color:#475569;margin-right:4px;flex-shrink:0">DOWNLOAD:</div>
+    <button class="btn-action" onclick="downloadCAMPdf()">CAM Report PDF</button>
+    <button class="btn-action" style="background:#6d28d9" onclick="downloadAIReport()">AI Insights PDF</button>
+    <button class="btn-action" style="background:#0e7490" onclick="downloadOriginalData()">Raw Data (JSON)</button>
+    <button class="btn-action" style="background:#047857;display:none" onclick="downloadOriginalPdf()" id="origPdfBtn">Original Bureau PDF</button>
+    <div id="saveNotice" style="margin-left:8px"></div>
+  </div>
+
+  <div id="resultArea" style="display:none">
+    <div class="tabs" id="tabRow">
+      <button class="tab on" onclick="switchTab('elig',this)">📊 Eligibility</button>
+      <button class="tab" onclick="switchTab('cam',this)">CAM Sheet</button>
+      <button class="tab" onclick="switchTab('unsec',this)">Unsecured</button>
+      <button class="tab" onclick="switchTab('sec',this)">Secured</button>
+      <button class="tab" onclick="switchTab('all',this)">All Accounts</button>
+    </div>
+    <div class="panel on" id="pelig"></div>
+    <div class="panel" id="pcam"></div>
+    <div class="panel" id="punsec"></div>
+    <div class="panel" id="psec"></div>
+    <div class="panel" id="pall"></div>
+  </div>
+</div>
+<script>
+
+'use strict';
+var currentData = null;
+var selectedFile = null;
+var loanOverrides = {};
+
+// ── HARDCODED GOOGLE CONFIG ───────────────────────────────────────────
+var GCONFIG = {
+  sheetId:      '1piNu4adtOYPL2LQvudkr6gjkV8MxtCGkNhfQMvEzZ5U',
+  driveFolderId:'11HMd1o63ayoJ7BX0VWnLCLsrja1zBO14',
+  _accessToken: null,
+  _tokenExpiry: 0
+};
+
+// Auto-refresh access token using refresh token
+async function getAccessToken(){
+  if(GCONFIG._accessToken && Date.now() < GCONFIG._tokenExpiry - 60000){
+    return GCONFIG._accessToken;
+  }
+  var s = getSettings();
+  if(!s.gClientId||!s.gClientSecret||!s.gRefreshToken) throw new Error('Google OAuth credentials not set — enter them in Settings.');
+  var resp = await fetch('https://oauth2.googleapis.com/token',{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'client_id='+encodeURIComponent(s.gClientId)+'&client_secret='+encodeURIComponent(s.gClientSecret)
+      +'&refresh_token='+encodeURIComponent(s.gRefreshToken)+'&grant_type=refresh_token'
+  });
+  var data = await resp.json();
+  if(!data.access_token) throw new Error('Token refresh failed: '+(data.error||'unknown'));
+  GCONFIG._accessToken = data.access_token;
+  GCONFIG._tokenExpiry = Date.now() + (data.expires_in||3600)*1000;
+  return GCONFIG._accessToken;
+}
+
+// ── SAVE TO GOOGLE SHEETS (one row) ──────────────────────────────────
+async function saveToSheets(data, driveLink){
+  try{
+    var token = await getAccessToken();
+    var a = data.applicant||{};
+    var uw = underwrite(data, getM());
+    var emp = getSettings().empName||'Unknown';
+    var now = new Date();
+    var row = [
+      now.toLocaleDateString('en-IN'),
+      now.toLocaleTimeString('en-IN'),
+      emp,
+      a.name||'—',
+      a.mobile||'—',
+      a.pan||'—',
+      uw.score||0,
+      uw.decision,
+      uw.active.length,
+      uw.total,
+      uw.allowed,
+      uw.eligibleEmi,
+      uw.maxLoan,
+      uw.foirUsed.toFixed(1)+'%',
+      getM().salary,
+      uw.overdues,
+      uw.enquiries,
+      driveLink||'—'
+    ];
+    var resp = await fetch(
+      'https://sheets.googleapis.com/v4/spreadsheets/'+GCONFIG.sheetId+'/values/Sheet1!A1:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS',
+      {
+        method:'POST',
+        headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+        body:JSON.stringify({values:[row]})
+      }
+    );
+    if(!resp.ok) throw new Error('Sheets error '+resp.status);
+    console.log('Saved to Sheets ✅');
+    return true;
+  }catch(e){
+    console.warn('Sheets save failed:',e.message);
+    return false;
+  }
+}
+
+// ── SAVE TO GOOGLE DRIVE (full JSON) ─────────────────────────────────
+async function saveToDrive(data){
+  try{
+    var token = await getAccessToken();
+    var a = data.applicant||{};
+    var uw = underwrite(data, getM());
+    var emp = getSettings().empName||'Unknown';
+    var date = new Date().toISOString().slice(0,10);
+    var fileName = (a.name||'Unknown').replace(/\s+/g,'_')+'_Score'+(uw.score||0)+'_'+date+'_by_'+emp+'.json';
+
+    var content = JSON.stringify({
+      savedAt: new Date().toISOString(),
+      savedBy: emp,
+      applicant: a,
+      accountSummary: data.accountSummary,
+      underwriting:{
+        salary:uw.m.salary, foir:uw.m.foir,
+        totalObligation:uw.total, eligibleEmi:uw.eligibleEmi,
+        maxLoan:uw.maxLoan, foirUsed:uw.foirUsed,
+        decision:uw.decision, score:uw.score
+      },
+      accounts: data.accounts,
+      enquiries: data.enquiries,
+      analystRemarks: data.analystRemarks||''
+    }, null, 2);
+
+    var boundary = 'CAM'+Date.now();
+    var body = '--'+boundary+'\r\nContent-Type: application/json\r\n\r\n'
+      + JSON.stringify({name:fileName, parents:[GCONFIG.driveFolderId], mimeType:'application/json'})
+      + '\r\n--'+boundary+'\r\nContent-Type: application/json\r\n\r\n'
+      + content + '\r\n--'+boundary+'--';
+
+    var resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'multipart/related; boundary='+boundary},
+      body:body
+    });
+    if(!resp.ok) throw new Error('Drive error '+resp.status);
+    var f = await resp.json();
+    console.log('Saved to Drive ✅',f.name);
+    return {id:f.id, name:f.name, link:'https://drive.google.com/file/d/'+f.id+'/view'};
+  }catch(e){
+    console.warn('Drive save failed:',e.message);
+    return null;
+  }
+}
+
+// ── COMBINED AUTO SAVE ────────────────────────────────────────────────
+async function autoSave(data, source){
+  var notice = document.getElementById('saveNotice');
+  if(notice) notice.innerHTML='<span style="color:#1d4ed8;font-size:11px">💾 Saving to Drive & Sheets...</span>';
+
+  // Save to Drive first to get the link
+  var driveFile = await saveToDrive(data);
+  var driveLink = driveFile ? driveFile.link : '—';
+
+  // Save row to Sheets with Drive link
+  var sheetOk = await saveToSheets(data, driveLink);
+
+  if(notice){
+    if(driveFile && sheetOk){
+      notice.innerHTML='<span style="color:#166534;font-size:11px;background:#f0fdf4;padding:4px 10px;border-radius:6px;font-weight:700">'
+        +'✅ Saved to Drive & Sheets — '+driveFile.name+'</span>';
+    } else {
+      notice.innerHTML='<span style="color:#dc2626;font-size:11px">⚠️ Save failed — check console</span>';
+    }
+  }
+}
+
+function saveSettings(){
+  var s={
+    empName:document.getElementById('empName').value.trim(),
+    apiKey:document.getElementById('apiKey').value.trim(),
+    crifToken:document.getElementById('crifToken').value.trim(),
+    crifUrl:document.getElementById('crifUrl').value.trim(),
+    gClientId:document.getElementById('gClientId').value.trim(),
+    gClientSecret:document.getElementById('gClientSecret').value.trim(),
+    gRefreshToken:document.getElementById('gRefreshToken').value.trim()
+  };
+  if(!s.empName){alert('Please enter your name first.');return;}
+  GCONFIG._accessToken=null; GCONFIG._tokenExpiry=0; // invalidate cached token on cred change
+  localStorage.setItem('camSettings',JSON.stringify(s));
+  document.getElementById('empNameDisplay').textContent=s.empName;
+  document.getElementById('settingsPanel').style.display='none';
+  updateBtn();
+}
+function loadSettings(){
+  try{
+    var s=JSON.parse(localStorage.getItem('camSettings')||'{}');
+    if(s.empName){
+      document.getElementById('empName').value=s.empName;
+      document.getElementById('empNameDisplay').textContent=s.empName;
+      document.getElementById('settingsPanel').style.display='none';
+    } else {
+      // First time — show settings so user fills in name
+      document.getElementById('settingsPanel').style.display='block';
+    }
+    if(s.apiKey) document.getElementById('apiKey').value=s.apiKey;
+    if(s.crifToken) document.getElementById('crifToken').value=s.crifToken;
+    if(s.crifUrl) document.getElementById('crifUrl').value=s.crifUrl;
+    if(s.gClientId) document.getElementById('gClientId').value=s.gClientId;
+    if(s.gClientSecret) document.getElementById('gClientSecret').value=s.gClientSecret;
+    if(s.gRefreshToken) document.getElementById('gRefreshToken').value=s.gRefreshToken;
+    updateBtn();
+  }catch(e){}
+}
+function toggleSettings(){
+  var p=document.getElementById('settingsPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+function getSettings(){
+  try{return JSON.parse(localStorage.getItem('camSettings')||'{}');}catch(e){return {};}
+}
+
+// ── CRIF PULL ─────────────────────────────────────────────────────────
+async function pullCrif(){
+  var s=getSettings();
+  var name=document.getElementById('crifName').value.trim();
+  var mobile=document.getElementById('crifMobile').value.trim();
+  var pan=document.getElementById('crifPan').value.trim().toUpperCase();
+  var status=document.getElementById('crifStatus');
+
+  if(!name||!mobile||!pan){status.innerHTML='<span style="color:#dc2626">⚠️ Enter Name, Mobile and PAN</span>';return;}
+  if(mobile.length!==10){status.innerHTML='<span style="color:#dc2626">⚠️ Mobile must be 10 digits</span>';return;}
+  if(pan.length!==10){status.innerHTML='<span style="color:#dc2626">⚠️ PAN must be 10 characters</span>';return;}
+  if(!s.crifToken||!s.crifUrl){status.innerHTML='<span style="color:#dc2626">⚠️ Set CRIF token & URL in Settings first</span>';return;}
+  if(!s.apiKey){status.innerHTML='<span style="color:#dc2626">⚠️ Set Claude API key in Settings first</span>';return;}
+
+  status.innerHTML='<span style="color:#1d4ed8">⏳ Pulling CRIF report for '+name+'...</span>';
+  document.getElementById('crifBtn').disabled=true;
+  document.getElementById('loadingSpinner').style.display='block';
+
+  try{
+    // Step 1: Pull CRIF via SurePass
+    var nameParts=name.trim().split(/\s+/);
+    var lastName=nameParts.length>1?nameParts.slice(1).join(' '):nameParts[0];
+    var crifResp=await fetch(s.crifUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.crifToken},
+      body:JSON.stringify({name:name,last_name:lastName,mobile:mobile,pan:pan,consent:'Y',raw:true})
+    });
+    var crifText=await crifResp.text();
+    var crifJson={};try{crifJson=JSON.parse(crifText);}catch(x){}
+    if(!crifResp.ok||!crifJson.success){
+      throw new Error('SurePass error '+crifResp.status+': '+(crifJson.message||crifText.slice(0,200)));
+    }
+    var crifRaw=crifText;
+    var quickScore=crifJson.data&&crifJson.data.credit_score?crifJson.data.credit_score:'';
+    status.innerHTML='<span style="color:#16a34a">✅ SurePass data received'+(quickScore?' — Score: <b>'+quickScore+'</b>':'')+' — sending to Claude for parsing...</span>';
+
+    // Step 2: Send CRIF response to Claude for parsing
+    var prompt='You are a senior Indian credit analyst. Parse this CRIF bureau API response and return ONLY valid JSON with no markdown. Schema: {"applicant":{"name":"","pan":"","dob":"","mobile":"","email":"","address":"","reportDate":"","creditScore":0,"scoreModel":"","scoreRange":"","refNo":""},"accountSummary":{"totalAccounts":0,"activeAccounts":0,"overdueAccounts":0,"currentBalance":0,"enquiriesLast24M":0,"newAccountsLast6M":0,"newDelinquentLast6M":0},"accounts":[{"srNo":1,"lender":"","type":"PERSONAL LOAN","accountNumber":"","ownership":"INDIVIDUAL","disbursedAmount":0,"currentBalance":0,"overdueAmount":0,"creditLimit":0,"emiAmount":0,"disbursedDate":"","status":"Active","worstDPD":"000","tenure":0}],"enquiries":[{"lender":"","date":"","purpose":"","amount":0}],"analystRemarks":""}. CRIF DATA: '+crifRaw;
+
+    var claudeResp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':s.apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:8000,messages:[{role:'user',content:prompt}]})
+    });
+    if(!claudeResp.ok){var e=await claudeResp.json();throw new Error('Claude error '+(claudeResp.status)+': '+(e.error&&e.error.message||JSON.stringify(e)));}
+    var claudeData=await claudeResp.json();
+    var raw=extractJson(claudeData.content&&claudeData.content[0]&&claudeData.content[0].text||'');
+    var parsed=JSON.parse(raw);
+
+    currentData=parsed;
+    loanOverrides={};
+    document.getElementById('loadingSpinner').style.display='none';
+    status.innerHTML='<span style="color:#16a34a">✅ Report loaded for <b>'+name+'</b> — Score: <b>'+(parsed.applicant&&parsed.applicant.creditScore||'N/A')+'</b></span>';
+    document.getElementById('crifBtn').disabled=false;
+    renderCase(parsed);
+    // Auto-save to Drive after render
+    setTimeout(function(){autoSave(parsed,'CRIF');},2000);
+
+  }catch(e){
+    document.getElementById('loadingSpinner').style.display='none';
+    document.getElementById('crifBtn').disabled=false;
+    status.innerHTML='<span style="color:#dc2626">❌ Error: '+e.message+'</span>';
+  }
+}
+
+// ── CONSTANTS ─────────────────────────────────────────────────────────
+var SECURED = ['HOME LOAN','LOAN AGAINST PROPERTY','AUTO LOAN','TWO-WHEELER LOAN'];
+var JOINT_ALLOWED = ['HOME LOAN','LOAN AGAINST PROPERTY','AUTO LOAN','TWO-WHEELER LOAN'];
+var CC_TYPE = 'CREDIT CARD';
+
+// ── UTILITIES ─────────────────────────────────────────────────────────
+function fmt(n){
+  n = Number(n)||0;
+  if(n>=10000000) return '\u20b9'+(n/10000000).toFixed(2)+' Cr';
+  if(n>=100000)  return '\u20b9'+(n/100000).toFixed(2)+' L';
+  if(n>=1000)    return '\u20b9'+Math.round(n).toLocaleString('en-IN');
+  return '\u20b9'+Math.round(n);
+}
+function dp(d){ return d&&d!=='000'&&d!=='00'?'<span style="color:#dc2626;font-weight:900">&#9888; </span>':''; }
+function pvFromEmi(emi,roi,n){
+  if(!emi||!n) return 0;
+  var r=roi/1200;
+  if(r===0) return emi*n;
+  return Math.round(emi*(1-Math.pow(1+r,-n))/r);
+}
+function calcEmi(p,roi,n){
+  if(!p||!n) return 0;
+  var r=roi/1200;
+  if(r===0) return Math.round(p/n);
+  return Math.round(p*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1));
+}
+function loanKey(l){ return (l.lender||'')+'|'+(l.accountNumber||'')+'|'+(l.type||''); }
+function getOverride(l){ return loanOverrides[loanKey(l)]||{}; }
+function setOverride(l,k,v){ var key=loanKey(l); if(!loanOverrides[key])loanOverrides[key]={}; loanOverrides[key][k]=v; recalcIfLoaded(); }
+function jointAllowed(l){ return JOINT_ALLOWED.includes((l.type||'').toUpperCase()); }
+function ttag(t){
+  var map={'CREDIT CARD':'t-amber','PERSONAL LOAN':'t-blue','HOME LOAN':'t-green','LOAN AGAINST PROPERTY':'t-green','AUTO LOAN':'t-green','TWO-WHEELER LOAN':'t-green','CONSUMER LOAN':'t-gray','LOAN ON CREDIT CARD':'t-amber','APP LOAN':'t-gray','OTHER':'t-gray'};
+  var cls = map[(t||'').toUpperCase()]||'t-blue';
+  var lbl = (t||'OTHER').replace('PERSONAL LOAN','PL').replace('CREDIT CARD','CC').replace('TWO-WHEELER LOAN','2W').replace('CONSUMER LOAN','CL').replace('LOAN AGAINST PROPERTY','LAP').replace('LOAN ON CREDIT CARD','LOC');
+  return '<span class="tag '+cls+'">'+lbl+'</span>';
+}
+function stag(s){ return s==='Active'?'<span class="tag t-green">Active</span>':'<span class="tag t-gray">Closed</span>'; }
+
+function getM(){
+  return {
+    salary: Number(document.getElementById('salary').value)||0,
+    manualEmi: Number(document.getElementById('manualEmi').value)||0,
+    reqLoan: Number(document.getElementById('reqLoan').value)||0,
+    foir: Number(document.getElementById('foir').value)||50,
+    roi: Number(document.getElementById('roi').value)||9.99,
+    reqTenure: Number(document.getElementById('reqTenure').value)||72
+  };
+}
+
+function getEffectiveLoan(l){
+  var ov = getOverride(l);
+  var type = ov.type||l.type||'OTHER';
+  var status = ov.status||l.status||'Active';
+  var bt = status==='Active' && !!(ov.bt!==undefined ? ov.bt : false);
+  var ownership = jointAllowed({type:type}) ? (ov.ownership||l.ownership||'INDIVIDUAL') : 'INDIVIDUAL';
+  var emi = 0;
+  if(status==='Active'){
+    if(type===CC_TYPE){
+      emi = Math.round(Number(l.currentBalance||0)*0.05);
+    } else {
+      var base = ov.emi!==undefined ? Number(ov.emi) : (Number(l.emiAmount)||calcEmi(Number(l.disbursedAmount||0),9.99,Number(l.tenure||36)));
+      emi = base;
+      if(jointAllowed({type:type}) && ownership==='JOINT') emi = Math.round(base*0.5);
+    }
+    if(bt) emi = 0;
+  }
+  return Object.assign({},l,{type:type,status:status,bt:bt,ownership:ownership,effectiveEmi:emi});
+}
+
+function calcLoanEmiBase(l){
+  if((l.type||'')=== CC_TYPE) return Math.round(Number(l.currentBalance||0)*0.05);
+  return Number(l.emiAmount)||calcEmi(Number(l.disbursedAmount||0),9.99,Number(l.tenure||36));
+}
+
+function underwrite(data,m){
+  var loans = (data.accounts||[]).map(function(l){ return getEffectiveLoan(l); });
+  var active = loans.filter(function(l){ return l.status==='Active'; });
+  var activeNonCC = active.filter(function(l){ return l.type!==CC_TYPE; });
+  var activeCC = active.filter(function(l){ return l.type===CC_TYPE; });
+
+  var bureauEmi = activeNonCC.filter(function(l){ return !l.bt; }).reduce(function(s,l){ return s+l.effectiveEmi; },0);
+  var ccObligation = activeCC.reduce(function(s,l){ return s+l.effectiveEmi; },0);
+  var ccBalance = activeCC.reduce(function(s,l){ return s+Number(l.currentBalance||0); },0);
+  var total = bureauEmi + ccObligation + m.manualEmi;
+  var allowed = Math.round(m.salary * m.foir / 100);
+  var eligibleEmi = Math.max(0, allowed - total);
+  var maxLoan = pvFromEmi(eligibleEmi, m.roi, m.reqTenure);
+  var foirUsed = m.salary>0 ? (total/m.salary*100) : 0;
+  var foirBreached = foirUsed > m.foir;
+
+  // Raw (no BT) for display
+  var rawActiveEmi = (data.accounts||[]).reduce(function(s,l){
+    var ov=getOverride(l);
+    var status=ov.status||l.status||'Active';
+    if(status!=='Active') return s;
+    var type=ov.type||l.type||'OTHER';
+    if(type===CC_TYPE) return s+Math.round(Number(l.currentBalance||0)*0.05);
+    var base=ov.emi!==undefined?Number(ov.emi):(Number(l.emiAmount)||calcEmi(Number(l.disbursedAmount||0),9.99,Number(l.tenure||36)));
+    var ownership=ov.ownership||l.ownership||'INDIVIDUAL';
+    return s+(jointAllowed({type:type})&&ownership==='JOINT'?Math.round(base*0.5):base);
+  },0);
+
+  var btSelected = active.filter(function(l){ return l.bt; });
+  var btTotal = btSelected.reduce(function(s,l){ return s+Number(l.currentBalance||0); },0);
+  var emiAfterBT = bureauEmi + ccObligation + m.manualEmi; // total already uses BT-zeroed EMIs via getEffectiveLoan
+
+  // Loan counts
+  var activePL = active.filter(function(l){ return ['PERSONAL LOAN','CONSUMER LOAN','APP LOAN','LOAN ON CREDIT CARD'].includes(l.type.toUpperCase()); }).length;
+  var activeCCCount = activeCC.length;
+  var activeSecured = active.filter(function(l){ return SECURED.includes(l.type.toUpperCase()); }).length;
+  var overdues = active.reduce(function(s,l){ return s+Number(l.overdueAmount||0); },0);
+  var enquiries = Number((data.accountSummary||{}).enquiriesLast24M||0);
+  var score = Number((data.applicant||{}).creditScore||0);
+
+  // Required loan check
+  var reqLoan = m.reqLoan;
+  var proposedEmi = reqLoan>0 ? calcEmi(reqLoan,m.roi,m.reqTenure) : 0;
+  var reqFoir = m.salary>0 ? ((total+proposedEmi)/m.salary*100) : 0;
+  var reqFeasible = reqLoan>0 ? (proposedEmi<=eligibleEmi) : true;
+
+  // Decision
+  var decision;
+  if(foirBreached) decision = '\u274c FOIR Breached';
+  else if(overdues>0) decision = '\u26a0\ufe0f Overdue — Review';
+  else if(!score) decision = '\u23f3 Score Unavailable';
+  else if(score>=750) decision = '\u2705 Approve';
+  else if(score>=700) decision = '\u2705 Approve with Conditions';
+  else if(score>=650) decision = '\u23f3 Review Required';
+  else decision = '\u274c Decline';
+
+  // Suggestions — BOTH Close AND BT per unsecured loan
+  var suggestions = [];
+  var unsecActive = active.filter(function(l){ return !SECURED.includes(l.type.toUpperCase()) && l.type!==CC_TYPE && !l.bt; });
+  unsecActive.sort(function(a,b){ return Number(a.currentBalance||0)-Number(b.currentBalance||0); });
+  unsecActive.forEach(function(l){
+    var bal=Number(l.currentBalance||0);
+    var emi=l.effectiveEmi;
+    if(emi>0){
+      suggestions.push({lender:l.lender,type:l.type,balance:bal,emi:emi,tag:'Close',priority:'🔴',
+        action:'Pre-close this loan — frees \u20b9'+Math.round(emi).toLocaleString('en-IN')+'/mo (O/S: \u20b9'+Math.round(bal).toLocaleString('en-IN')+')'});
+      if(bal>25000){
+        // BT saving estimate: move from assumed ~18% to ~12% = ~25% EMI reduction (kept as estimate, labelled clearly)
+        var newEmi=calcEmi(bal,12,Number(l.tenure||36));
+        var btSaving=Math.max(0,emi-newEmi);
+        if(btSaving>0) suggestions.push({lender:l.lender,type:l.type,balance:bal,emi:btSaving,tag:'BT',priority:'🟢',
+          action:'Balance Transfer to ~12% ROI — est. saving \u20b9'+Math.round(btSaving).toLocaleString('en-IN')+'/mo (O/S: \u20b9'+Math.round(bal).toLocaleString('en-IN')+')'});
+      }
+    }
+  });
+  activeCC.forEach(function(c){
+    var obl=c.effectiveEmi;
+    var bal=Number(c.currentBalance||0);
+    if(obl>0) suggestions.push({lender:c.lender,type:'CREDIT CARD',balance:bal,emi:obl,tag:'Pay CC',priority:'🟡',
+      action:'Clear CC outstanding ₹'+Math.round(bal).toLocaleString('en-IN')+' → saves ₹'+Math.round(obl).toLocaleString('en-IN')+'/mo (5% rule)'});
+  });
+
+  return {m:m,loans:loans,active:active,all:loans,bureauEmi:bureauEmi,ccObligation:ccObligation,ccBalance:ccBalance,
+    total:total,allowed:allowed,eligibleEmi:eligibleEmi,maxLoan:maxLoan,foirUsed:foirUsed,foirBreached:foirBreached,
+    rawActiveEmi:rawActiveEmi,btTotal:btTotal,emiAfterBT:emiAfterBT,
+    activePL:activePL,activeCCCount:activeCCCount,activeSecured:activeSecured,overdues:overdues,
+    enquiries:enquiries,score:score,decision:decision,suggestions:suggestions,
+    reqLoan:reqLoan,proposedEmi:proposedEmi,reqFoir:reqFoir,reqFeasible:reqFeasible};
+}
+
+
+// ── CELL BUILDERS (string concat only, zero template literals) ─────────
+function buildLenderCell(l){
+  var name=l.lender||'\u2014';
+  var col=l.bt?'#16a34a':l.status==='Active'?'#1d4ed8':'#9ca3af';
+  var dec=l.bt?'line-through':'none';
+  var badge=l.bt?'<br><span style="font-size:9px;font-weight:900;background:#16a34a;color:#fff;border-radius:4px;padding:1px 5px">BT</span>':'';
+  return '<span style="font-weight:900;color:'+col+';text-decoration:'+dec+'">'+name+'</span>'+badge;
+}
+
+function buildTypeSelect(l,i){
+  var types=['PERSONAL LOAN','CREDIT CARD','HOME LOAN','LOAN AGAINST PROPERTY','AUTO LOAN','TWO-WHEELER LOAN','CONSUMER LOAN','LOAN ON CREDIT CARD','APP LOAN','OTHER'];
+  var labels={'PERSONAL LOAN':'PL','CREDIT CARD':'CC','HOME LOAN':'Home Loan','LOAN AGAINST PROPERTY':'LAP','AUTO LOAN':'Auto','TWO-WHEELER LOAN':'2W','CONSUMER LOAN':'CL','LOAN ON CREDIT CARD':'LOC','APP LOAN':'App','OTHER':'Other'};
+  var opts=types.map(function(t){ return '<option value="'+t+'"'+(l.type===t?' selected':'')+'>'+labels[t]+'</option>'; }).join('');
+  return '<select onchange="setOverride(window._allRef['+i+'],\'type\',this.value);recalcIfLoaded()" style="height:30px;border:1px solid #d0d5dd;border-radius:8px;padding:0 5px;font-size:10px;font-weight:800;background:#fff;max-width:110px">'+opts+'</select>';
+}
+
+function buildStatusSelect(l,i){
+  return '<select onchange="setOverride(window._allRef['+i+'],\'status\',this.value);recalcIfLoaded()" style="height:30px;border:1px solid #d0d5dd;border-radius:8px;padding:0 6px;font-size:11px;font-weight:700;background:#fff">'
+    +'<option value="Active"'+(l.status==='Active'?' selected':'')+'>Active</option>'
+    +'<option value="Closed"'+(l.status!=='Active'?' selected':'')+'>Closed</option>'
+    +'</select>';
+}
+
+function buildOwnerSelect(l,i){
+  if(!jointAllowed(l)||l.status!=='Active') return '<span style="font-size:11px;color:#9ca3af">—</span>';
+  return '<select onchange="setOverride(window._allRef['+i+'],\'ownership\',this.value);recalcIfLoaded()" style="height:30px;border:1px solid #d0d5dd;border-radius:8px;padding:0 5px;font-size:11px;background:#fff">'
+    +'<option value="INDIVIDUAL"'+(l.ownership!=='JOINT'?' selected':'')+'>Individual</option>'
+    +'<option value="JOINT"'+(l.ownership==='JOINT'?' selected':'')+'>Joint 50%</option>'
+    +'</select>';
+}
+
+function buildBtCell(l,i){
+  if(l.status!=='Active') return '<span style="color:#d1d5db">\u2014</span>';
+  return '<label style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;cursor:pointer">'
+    +'<input type="checkbox"'+(l.bt?' checked':'')+' onchange="setOverride(window._allRef['+i+'],\'bt\',this.checked)">BT</label>';
+}
+
+function buildEmiCell(l,i){
+  if(l.status!=='Active') return '<div style="font-size:13px;font-weight:900;color:#9ca3af">\u20b90</div><div style="font-size:10px;color:#d1d5db">Closed</div>';
+  if(l.bt){
+    var orig=calcLoanEmiBase(l);
+    return '<div style="font-size:14px;font-weight:900;color:#16a34a">\u20b90</div>'
+      +'<div style="font-size:10px;color:#16a34a;font-weight:700">BT \u2192 zero</div>'
+      +'<div style="font-size:10px;color:#9ca3af;text-decoration:line-through">was '+fmt(orig)+'</div>';
+  }
+  var isCC=l.type===CC_TYPE;
+  var ov=getOverride(l);
+  var def=isCC?Math.round(Number(l.currentBalance||0)*0.05):(Math.round(ov.emi!==undefined?Number(ov.emi):calcLoanEmiBase(l)));
+  var hint=isCC?'5% of \u20b9'+Math.round(Number(l.currentBalance||0)/1000)+'K':(jointAllowed(l)&&l.ownership==='JOINT'?'Joint 50%: '+fmt(l.effectiveEmi):'Final: '+fmt(l.effectiveEmi));
+  var hcol=isCC?'#d97706':'#667085';
+  var bc=isCC?'#fbbf24':'#d0d5dd';
+  var bg=isCC?'#fffbeb':'#fff';
+  return '<input type="number" value="'+def+'" onchange="setOverride(window._allRef['+i+'],\'emi\',this.value)" style="width:86px;height:30px;border:1px solid '+bc+';border-radius:8px;padding:0 7px;font-size:12px;font-weight:800;background:'+bg+'">'
+    +'<div style="font-size:10px;margin-top:2px;color:'+hcol+';font-weight:700">'+hint+'</div>';
+}
+
+// ── CAM GRID TABLE ─────────────────────────────────────────────────────
+function camRows(loans){
+  if(!loans.length) return '<tr><td colspan="13" style="padding:16px;text-align:center;color:#94a3b8">No loans</td></tr>';
+  window._allRef = loans;
+  var btTotal=0,totDisb=0,totBal=0,totEmi=0;
+  var rows=loans.map(function(l,i){
+    var el=getEffectiveLoan(l);
+    if(el.bt&&el.status==='Active') btTotal+=Number(l.currentBalance||0);
+    if(el.status==='Active'){totDisb+=Number(l.disbursedAmount||0);totBal+=Number(l.currentBalance||0);totEmi+=el.effectiveEmi;}
+    var bg=el.bt?'background:#effcf3':el.status!=='Active'?'background:#fafafa':'';
+    var ov=Number(l.overdueAmount||0);
+    return '<tr style="'+bg+'">'
+      +'<td>'+(i+1)+'</td>'
+      +'<td>'+buildLenderCell(el)+'</td>'
+      +'<td>'+buildTypeSelect(el,i)+'</td>'
+      +'<td style="font-family:monospace;font-size:10px">'+(l.accountNumber||'\u2014')+'</td>'
+      +'<td>'+fmt(l.disbursedAmount||0)+'</td>'
+      +'<td>'+fmt(l.currentBalance||0)+'</td>'
+      +'<td style="'+(ov>0?'color:#dc2626;font-weight:800':'color:#16a34a')+'">'+(ov>0?fmt(ov):'\u20b90')+'</td>'
+      +'<td style="font-size:10px;color:#667085">'+(l.disbursedDate||'\u2014')+'</td>'
+      +'<td>'+buildEmiCell(el,i)+'</td>'
+      +'<td>'+buildStatusSelect(el,i)+'</td>'
+      +'<td>'+buildOwnerSelect(el,i)+'</td>'
+      +'<td>'+buildBtCell(el,i)+'</td>'
+      +'<td>'+(Number(l.worstDPD||0)>90?'<span style="background:#dc2626;color:#fff;border-radius:4px;padding:1px 5px;font-weight:900;font-size:10px">'+l.worstDPD+'</span>':Number(l.worstDPD||0)>0?'<span style="background:#f97316;color:#fff;border-radius:4px;padding:1px 5px;font-weight:900;font-size:10px">'+l.worstDPD+'</span>':'<span style="color:#16a34a;font-weight:700">0</span>')+'</td>'
+      +'</tr>';
+  }).join('');
+  return rows
+    +'<tr style="background:#f8fafc;border-top:2px solid #e2e8f0">'
+    +'<td colspan="4" style="font-weight:900;color:#475569;padding:10px 8px">TOTALS (Active)</td>'
+    +'<td style="font-weight:900;color:#1d4ed8">'+fmt(totDisb)+'</td>'
+    +'<td style="font-weight:900;color:#1d4ed8">'+fmt(totBal)+'</td>'
+    +'<td colspan="2" style="font-weight:900;color:#dc2626">EMI: '+fmt(totEmi)+'</td>'
+    +'<td colspan="5"></td></tr>'
+    +'<tr style="background:#effcf3">'
+    +'<td colspan="7" style="font-weight:900;color:#166534;padding:10px 8px">\u2705 BT Selected Total</td>'
+    +'<td style="font-weight:900;color:#166534">'+fmt(btTotal)+'</td>'
+    +'<td colspan="5"></td></tr>';
+}
+
+function rowBlock(loans){
+  if(!loans.length) return '<tr><td colspan="11" style="padding:16px;text-align:center;color:#94a3b8">No accounts</td></tr>';
+  return loans.map(function(l){
+    var ov=Number(l.overdueAmount||0);
+    return '<tr>'
+      +'<td>'+(l.srNo||'\u2014')+'</td>'
+      +'<td>'+buildLenderCell(l)+'</td>'
+      +'<td>'+ttag(l.type||'OTHER')+'</td>'
+      +'<td style="font-family:monospace;font-size:10px">'+(l.accountNumber||'\u2014')+'</td>'
+      +'<td>'+fmt(l.disbursedAmount||0)+'</td>'
+      +'<td>'+fmt(l.currentBalance||0)+'</td>'
+      +'<td style="'+(ov>0?'color:#dc2626;font-weight:800':'color:#16a34a')+'">'+(ov>0?fmt(ov):'\u20b90')+'</td>'
+      +'<td>'+(l.disbursedDate||'\u2014')+'</td>'
+      +'<td>'+fmt(l.effectiveEmi)+'</td>'
+      +'<td>'+stag(l.status)+'</td>'
+      +'<td>'+(Number(l.worstDPD||0)>90?'<span style="background:#dc2626;color:#fff;border-radius:4px;padding:1px 5px;font-weight:900;font-size:10px">'+l.worstDPD+'</span>':Number(l.worstDPD||0)>0?'<span style="background:#f97316;color:#fff;border-radius:4px;padding:1px 5px;font-weight:900;font-size:10px">'+l.worstDPD+'</span>':'<span style="color:#16a34a;font-weight:700">0</span>')+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ── RENDER FUNCTIONS ──────────────────────────────────────────────────
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+  el.classList.add('on');
+  document.getElementById('p'+name).classList.add('on');
+}
+
+function showErr(msg){ var b=document.getElementById('errBox'); b.style.display='block'; b.textContent=msg; }
+function hideErr(){ document.getElementById('errBox').style.display='none'; }
+function showLoading(t,s){ document.getElementById('resultArea').style.display='none'; document.getElementById('loadingSpinner').style.display='block'; }
+
+function renderCase(data){
+  hideErr();
+  var m=getM();
+  var uw=underwrite(data,m);
+
+  // KPI bar
+  document.getElementById('topKpis').style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:8px';
+  // Risk bar
+  (function(){
+    var flags=[];
+    if(uw.overdues>0) flags.push('<b style="color:#dc2626">Overdue: '+fmt(uw.overdues)+'</b>');
+    var worstDPD=uw.active.reduce(function(mx,l){return Math.max(mx,Number(l.worstDPD||0));},0);
+    if(worstDPD>0) flags.push('<b style="color:#dc2626">Worst DPD: '+worstDPD+' days</b>');
+    if(uw.enquiries>6) flags.push('<b style="color:#dc2626">Enquiries 24M: '+uw.enquiries+' (High)</b>');
+    else if(uw.enquiries>3) flags.push('<b style="color:#d97706">Enquiries 24M: '+uw.enquiries+' (Moderate)</b>');
+    var ovA=uw.active.filter(function(l){return Number(l.overdueAmount||0)>0;});
+    ovA.forEach(function(l){flags.push('<b style="color:#dc2626">'+l.lender+' overdue '+fmt(l.overdueAmount)+'</b>');});
+    var rb=document.getElementById('riskbar');
+    var rc=document.getElementById('riskbarContent');
+    if(flags.length){rb.style.display='block';rc.innerHTML=flags.join(' &nbsp;|&nbsp; ');}
+    else{rb.style.display='none';}
+  })();
+  document.getElementById('topKpis').innerHTML=
+    kpiCard('Score',(uw.score>=750?'<span style="color:#16a34a;font-weight:900">':uw.score>=700?'<span style="color:#0891b2;font-weight:900">':uw.score>=650?'<span style="color:#d97706;font-weight:900">':'<span style="color:#dc2626;font-weight:900">')+(uw.score||'N/A')+'</span>','k1')
+    +kpiCard('Active Loans',uw.active.length,'k2')
+    +kpiCard('Total O/S',fmt(uw.active.reduce(function(s,l){return s+Number(l.currentBalance||0);},0)),'k3')
+    +kpiCard('Overdue Amt',uw.overdues>0?'<span style="color:#dc2626;font-weight:900">'+fmt(uw.overdues)+'</span>':'<span style="color:#16a34a;font-weight:900">NIL</span>','k4')
+    +kpiCard('Worst DPD',(function(){var d=uw.active.reduce(function(mx,l){return Math.max(mx,Number(l.worstDPD||0));},0);return d>0?'<span style="color:#dc2626;font-weight:900">'+d+' days</span>':'<span style="color:#16a34a;font-weight:900">0</span>';})(),'k5')
+    +kpiCard('Enquiries 24M',uw.enquiries>6?'<span style="color:#dc2626;font-weight:900">'+uw.enquiries+'</span>':uw.enquiries>3?'<span style="color:#d97706;font-weight:900">'+uw.enquiries+'</span>':'<span style="color:#16a34a;font-weight:900">'+uw.enquiries+'</span>','k6')
+    +kpiCard('Overdue A/Cs',(function(){var n=uw.active.filter(function(l){return Number(l.overdueAmount||0)>0;}).length;return n>0?'<span style="color:#dc2626;font-weight:900">'+n+' A/C</span>':'<span style="color:#16a34a;font-weight:900">NIL</span>';})(),'k7')
+    +kpiCard('Decision','<span style="font-size:10px;font-weight:900">'+uw.decision+'</span>','k8');
+
+  // Live bar
+  var lb=document.getElementById('livebar');
+  lb.style.display='flex';
+  var items=[
+    {icon:'\ud83d\udcb0',label:'Active EMI (no BT)',val:fmt(uw.rawActiveEmi),sub:'Before BT adjustment',col:'#60a5fa'},
+    {icon:'\u2705',label:'EMI After BT',val:fmt(uw.emiAfterBT),sub:'BT=\u20b90, incl CC 5%',col:'#4ade80'},
+    {icon:'\ud83d\udd04',label:'BT Loan Outstanding',val:fmt(uw.btTotal),sub:'BT selected accounts',col:'#a78bfa'},
+    {icon:'\ud83d\udcca',label:'Effective FOIR',val:uw.foirUsed.toFixed(1)+'%',sub:uw.foirBreached?'\u26a0 Over limit':'\u2713 Within limit',col:uw.foirBreached?'#f87171':'#4ade80'},
+    {icon:'\ud83c\udfe6',label:'FOIR Allowed',val:m.foir+'%',sub:'As per policy',col:'#fbbf24'},
+    {icon:'\ud83c\udfc6',label:'Max Eligible Loan',val:fmt(uw.maxLoan),sub:'ROI '+m.roi+'% / '+m.reqTenure+' mo',col:'#4ade80'}
+  ];
+  lb.innerHTML=items.map(function(x,i){
+    return '<div style="flex:1;min-width:130px;padding:10px 16px;'+(i<items.length-1?'border-right:1px solid rgba(255,255,255,.1)':'')+'">'
+      +'<div style="font-size:18px;margin-bottom:2px">'+x.icon+'</div>'
+      +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.85);font-weight:700;margin-bottom:2px">'+x.label+'</div>'
+      +'<div style="font-size:19px;font-weight:800;color:'+x.col+';line-height:1.1">'+x.val+'</div>'
+      +'<div style="font-size:10px;color:rgba(255,255,255,.65);margin-top:2px">'+x.sub+'</div>'
+      +'</div>';
+  }).join('');
+
+  document.getElementById('loadingSpinner').style.display='none';
+  document.getElementById('resultArea').style.display='block';
+  document.getElementById('downloadBar').style.display='flex';
+  // Preserve current active tab; only default to eligibility on first load
+  var resultShown = true;
+  var activePanelId = null;
+  if(resultShown){
+    var ap=document.querySelector('.panel.on');
+    if(ap) activePanelId=ap.id;
+  }
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+  if(activePanelId){
+    document.getElementById(activePanelId).classList.add('on');
+    var tabName=activePanelId.slice(1);
+    document.querySelectorAll('.tab').forEach(function(t){
+      var oc=t.getAttribute('onclick')||'';
+      if(oc.indexOf(tabName)>-1) t.classList.add('on');
+    });
+  } else {
+    document.querySelector('.tab').classList.add('on');
+    document.getElementById('pelig').classList.add('on');
+  }
+
+  renderEligibility(uw,data);
+  renderCam(data,uw);
+  renderUnsecured(uw);
+  renderSecured(uw);
+  renderAll(uw);
+}
+
+function kpiCard(k,v,cls){
+  return '<div class="kpi '+cls+'"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
+}
+
+function tblHead(cols){
+  return '<div class="cam-wrap"><table class="cam"><thead><tr>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>';
+}
+
+
+// ── ELIGIBILITY TAB ──────────────────────────────────────────────────
+function renderEligibility(uw,data){
+  var m=uw.m;
+  var h='';
+
+  // Flow bar
+  h+='<div class="sub" style="border:none;padding:0">';
+  h+='<div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;background:linear-gradient(135deg,#0f172a,#1e3a8a);border-radius:18px;padding:22px 20px;margin-bottom:14px">';
+  h+=flowBox('Net Salary',fmt(m.salary),'Monthly take-home','#60a5fa');
+  h+=flowArrow('\u00d7 '+m.foir+'%','#94a3b8');
+  h+=flowBox('Allowed Obligation',fmt(uw.allowed),'FOIR cap','#a78bfa');
+  h+=flowArrow('\u2212','#f87171');
+  h+=flowBox('Total Obligation',fmt(uw.total),'Active EMIs + CC 5%','#f87171');
+  h+=flowArrow('=','#94a3b8');
+  var ec=uw.eligibleEmi>0?'#4ade80':'#f87171';
+  h+=flowBox('Eligible EMI',fmt(uw.eligibleEmi),uw.foirBreached?'\u26a0 FOIR breached':'\u2713 Available',ec);
+  h+='</div>';
+
+  // FOIR status
+  var fc=uw.foirBreached?'#dc2626':'#16a34a';
+  var fb=uw.foirBreached?'#fef2f2':'#f0fdf4';
+  h+='<div style="background:'+fb+';border:1px solid '+(uw.foirBreached?'#fca5a5':'#86efac')+';border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px">';
+  h+='<div style="font-size:34px;font-weight:900;color:'+fc+'">'+uw.foirUsed.toFixed(1)+'%</div>';
+  h+='<div><div style="font-size:13px;font-weight:900;color:'+fc+'">'+(uw.foirBreached?'\u26a0\ufe0f FOIR Breached \u2014 Exceeds '+m.foir+'% limit':'\u2713 FOIR Within Limit \u2014 '+m.foir+'% allowed')+'</div>';
+  h+='<div style="font-size:11px;color:#6b7280;margin-top:2px">Effective FOIR = '+fmt(uw.total)+' / '+fmt(m.salary)+' \u00d7 100</div></div></div>';
+
+  // Required loan check
+  if(uw.reqLoan>0){
+    var feas=uw.reqFeasible;
+    h+='<div style="background:'+(feas?'#f0fdf4':'#fef2f2')+';border:2px solid '+(feas?'#86efac':'#fca5a5')+';border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:16px">';
+    h+='<div style="font-size:36px">'+(feas?'\u2705':'\u274c')+'</div>';
+    h+='<div style="flex:1"><div style="font-size:14px;font-weight:900;color:'+(feas?'#166534':'#991b1b')+'">Required Loan '+fmt(uw.reqLoan)+' is '+(feas?'Feasible':'Not Feasible')+'</div>';
+    h+='<div style="font-size:11px;color:#6b7280;margin-top:2px">Proposed EMI: '+fmt(uw.proposedEmi)+' \u2022 FOIR if added: '+uw.reqFoir.toFixed(1)+'% \u2022 Eligible EMI: '+fmt(uw.eligibleEmi)+'</div></div>';
+    if(!feas) h+='<div style="text-align:right"><div style="font-size:10px;color:#9ca3af">EMI Shortfall</div><div style="font-size:18px;font-weight:900;color:#dc2626">'+fmt(uw.proposedEmi-uw.eligibleEmi)+'/mo</div></div>';
+    h+='</div>';
+  }
+
+  // Obligation breakdown
+  h+='<div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:14px">';
+  h+='<div style="background:#f8fafc;padding:12px 18px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#475569;border-bottom:1px solid #e2e8f0">Obligation Breakdown</div>';
+
+  // Allowed row
+  h+='<div style="display:flex;align-items:center;padding:12px 18px;border-bottom:1px solid #f1f5f9;background:#f0fdf4">';
+  h+=oblCircle('A','#16a34a');
+  h+='<div style="flex:1;margin-left:12px"><div style="font-size:12px;font-weight:900">Allowed Obligation</div><div style="font-size:11px;color:#6b7280">'+fmt(m.salary)+' \u00d7 '+m.foir+'%</div></div>';
+  h+='<div style="font-size:20px;font-weight:900;color:#16a34a">'+fmt(uw.allowed)+'</div></div>';
+
+  // Active non-CC loans
+  var nonCC=uw.active.filter(function(l){return l.type!==CC_TYPE;});
+  nonCC.forEach(function(l){
+    var isBT=l.bt;
+    h+='<div style="display:flex;align-items:center;padding:10px 18px 10px 50px;border-bottom:1px solid #f1f5f9;background:'+(isBT?'#f0fdf4':'#fff')+'">';
+    h+='<div style="flex:1"><div style="font-size:12px;font-weight:900;color:'+(isBT?'#9ca3af':'#374151')+'">'+(isBT?'<s>'+l.lender+'</s>':l.lender)+'</div>';
+    h+='<div style="font-size:10px;color:#9ca3af">'+l.type+' \u2022 Outstanding: '+fmt(l.currentBalance)+'</div></div>';
+    if(isBT){
+      h+='<span style="background:#16a34a;color:#fff;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:900;margin-right:8px">BT \u2192 \u20b90</span>';
+      h+='<div style="font-size:16px;font-weight:900;color:#16a34a;text-decoration:line-through;opacity:.5">'+fmt(calcLoanEmiBase(l))+'</div>';
+    } else {
+      h+='<div style="font-size:16px;font-weight:900;color:#dc2626">\u2212 '+fmt(l.effectiveEmi)+'</div>';
+    }
+    h+='</div>';
+  });
+
+  // CC rows
+  uw.active.filter(function(l){return l.type===CC_TYPE;}).forEach(function(c){
+    var obl=c.effectiveEmi;
+    h+='<div style="display:flex;align-items:center;padding:10px 18px 10px 50px;border-bottom:1px solid #f1f5f9;background:#fffbeb">';
+    h+='<div style="flex:1"><div style="font-size:12px;font-weight:900">'+c.lender+'</div>';
+    h+='<div style="font-size:10px;color:#9ca3af">Credit Card \u2022 Outstanding: '+fmt(c.currentBalance)+' \u2022 5% rule</div></div>';
+    h+='<div style="font-size:16px;font-weight:900;color:#d97706">\u2212 '+fmt(obl)+'</div></div>';
+  });
+
+  // Manual EMI
+  if(m.manualEmi>0){
+    h+='<div style="display:flex;align-items:center;padding:10px 18px 10px 50px;border-bottom:1px solid #f1f5f9">';
+    h+='<div style="flex:1"><div style="font-size:12px;font-weight:900">Manual EMI</div><div style="font-size:10px;color:#9ca3af">Declared manually</div></div>';
+    h+='<div style="font-size:16px;font-weight:900;color:#7c3aed">\u2212 '+fmt(m.manualEmi)+'</div></div>';
+  }
+
+  // Totals
+  h+='<div style="display:flex;align-items:center;padding:12px 18px;background:#fef2f2;border-bottom:1px solid #e2e8f0">';
+  h+='<div style="flex:1;font-size:12px;font-weight:900;margin-left:0">Total Obligation</div>';
+  h+='<div style="font-size:20px;font-weight:900;color:#dc2626">'+fmt(uw.total)+'</div></div>';
+  h+='<div style="display:flex;align-items:center;padding:14px 18px;background:linear-gradient(135deg,#f0fdf4,#dcfce7)">';
+  h+=oblCircle('=','#16a34a');
+  h+='<div style="flex:1;margin-left:12px"><div style="font-size:13px;font-weight:900;color:#166534">Eligible EMI</div>';
+  h+='<div style="font-size:11px;color:#4ade80">'+fmt(uw.allowed)+' \u2212 '+fmt(uw.total)+'</div></div>';
+  h+='<div style="font-size:26px;font-weight:900;color:'+(uw.eligibleEmi>0?'#16a34a':'#dc2626')+'">'+fmt(uw.eligibleEmi)+'</div></div>';
+  h+='</div>';
+
+  // Suggestions / Improvement Plan — grouped per loan (Close + BT side by side)
+  if(uw.suggestions.length){
+    var ts=uw.suggestions.filter(function(x){return x.tag==='Close';}).reduce(function(s,x){return s+x.emi;},0);
+    var al=pvFromEmi(ts,m.roi,m.reqTenure);
+    // Group by lender+type
+    var groups={};
+    uw.suggestions.forEach(function(s){
+      var key=s.lender+'|'+s.type;
+      if(!groups[key]) groups[key]={lender:s.lender,type:s.type,balance:s.balance,close:null,bt:null,cc:null};
+      if(s.tag==='Close') groups[key].close=s;
+      else if(s.tag==='BT') groups[key].bt=s;
+      else if(s.tag==='Pay CC') groups[key].cc=s;
+    });
+    h+='<div style="background:#fff;border:1px solid #fde68a;border-radius:16px;overflow:hidden;margin-top:14px">';
+    h+='<div style="background:#fffbeb;padding:12px 18px;border-bottom:1px solid #fde68a;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#92400e">💡 Eligibility Improvement Plan</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid #fde68a">';
+    h+=impCard('Loans to Action',Object.keys(groups).length,'#b45309','#fffbeb','border-right:1px solid #fde68a');
+    h+=impCard('Max EMI Freed (Close all)',fmt(ts)+'/mo','#15803d','#f0fdf4','border-right:1px solid #fde68a');
+    h+=impCard("Add'l Eligible Loan",fmt(al),'#1d4ed8','#eff6ff','');
+    h+='</div>';
+    h+='<div style="padding:8px 14px;background:#fef9c3;font-size:10px;font-weight:700;color:#92400e;border-bottom:1px solid #fde68a">⚠️ Each loan has two options — pick <b>ONE</b>: Close (pre-close with cash) OR BT (balance transfer to cheaper lender). They are alternatives, not cumulative.</div>';
+    Object.keys(groups).forEach(function(key){
+      var g=groups[key];
+      h+='<div style="border-bottom:1px solid #fde68a">';
+      // Loan header
+      h+='<div style="padding:10px 16px;background:#f8fafc;font-size:12px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px">';
+      h+='<span style="background:#0f172a;color:#fff;border-radius:5px;padding:2px 8px;font-size:10px">'+ttag(g.type).replace(/<[^>]+>/g,'')+'</span>';
+      h+='<span>'+g.lender+'</span>';
+      h+='<span style="margin-left:auto;font-size:11px;color:#64748b">O/S: '+fmt(g.balance)+'</span>';
+      h+='</div>';
+      // Options row
+      h+='<div style="display:grid;grid-template-columns:'+(g.close&&g.bt?'1fr 1fr':g.cc?'1fr':'1fr')+'">';
+      if(g.close){
+        h+='<div style="padding:12px 16px;background:#fef2f2;'+(g.bt?'border-right:1px solid #fde68a':'')+'">';
+        h+='<div style="font-size:10px;font-weight:800;color:#991b1b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">🔴 Option A — Pre-Close</div>';
+        h+='<div style="font-size:11px;color:#7f1d1d">'+g.close.action+'</div>';
+        h+='<div style="font-size:18px;font-weight:900;color:#dc2626;margin-top:6px">+'+fmt(g.close.emi)+'/mo freed</div>';
+        h+='</div>';
+      }
+      if(g.bt){
+        h+='<div style="padding:12px 16px;background:#eff6ff">';
+        h+='<div style="font-size:10px;font-weight:800;color:#1e40af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">🟢 Option B — Balance Transfer</div>';
+        h+='<div style="font-size:11px;color:#1e3a8a">'+g.bt.action+'</div>';
+        h+='<div style="font-size:18px;font-weight:900;color:#1d4ed8;margin-top:6px">+'+fmt(g.bt.emi)+'/mo saved</div>';
+        h+='</div>';
+      }
+      if(g.cc){
+        h+='<div style="padding:12px 16px;background:#fffbeb">';
+        h+='<div style="font-size:10px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">🟡 Pay CC Outstanding</div>';
+        h+='<div style="font-size:11px;color:#78350f">'+g.cc.action+'</div>';
+        h+='<div style="font-size:18px;font-weight:900;color:#d97706;margin-top:6px">+'+fmt(g.cc.emi)+'/mo freed</div>';
+        h+='</div>';
+      }
+      h+='</div></div>';
+    });
+    h+='<div style="background:#f0fdf4;padding:10px 16px;font-size:12px;font-weight:800;color:#166534">';
+    h+='→ If all loans pre-closed — EMI freed: '+fmt(ts)+'/mo — Additional eligible loan: ~'+fmt(al)+'</div>';
+    h+='</div>';
+  }
+
+  // FOIR Sensitivity Matrix
+  h+='<div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:14px">';
+  h+='<div style="background:#f8fafc;padding:12px 18px;border-bottom:1px solid var(--border);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#475569">📊 FOIR Sensitivity — Max Eligible Loan</div>';
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">';
+  h+='<thead><tr>';
+  h+='<th style="background:#0f172a;color:#fff;padding:8px 12px;text-align:left;font-size:11px;font-weight:700">FOIR %</th>';
+  h+='<th style="background:#0f172a;color:#fff;padding:8px 12px;text-align:right;font-size:11px;font-weight:700">Allowed Obligation</th>';
+  h+='<th style="background:#0f172a;color:#fff;padding:8px 12px;text-align:right;font-size:11px;font-weight:700">Eligible EMI</th>';
+  h+='<th style="background:#0f172a;color:#fff;padding:8px 12px;text-align:right;font-size:11px;font-weight:700">Max Loan ('+m.reqTenure+'mo @ '+m.roi+'%)</th>';
+  h+='<th style="background:#0f172a;color:#fff;padding:8px 12px;text-align:center;font-size:11px;font-weight:700">Feasibility</th>';
+  h+='</tr></thead><tbody>';
+  [40,45,50,55,60,65,70,75,80].forEach(function(f){
+    var allowed=Math.round(m.salary*f/100);
+    var eligEmi=Math.max(0,allowed-uw.total);
+    var maxL=pvFromEmi(eligEmi,m.roi,m.reqTenure);
+    var isCurrent=f===m.foir;
+    var feasible=uw.reqLoan>0?(eligEmi>=pvFromEmi(uw.reqLoan,m.roi,m.reqTenure)/m.reqTenure):true;
+    var rowBg=isCurrent?'#dbeafe':f%10===0?'#f8fafc':'#fff';
+    var feasColor=eligEmi<=0?'#dc2626':uw.reqLoan>0?(calcEmi(uw.reqLoan,m.roi,m.reqTenure)<=eligEmi?'#16a34a':'#dc2626'):'#16a34a';
+    var feasText=eligEmi<=0?'❌ FOIR Breached':(uw.reqLoan>0?(calcEmi(uw.reqLoan,m.roi,m.reqTenure)<=eligEmi?'✅ Feasible':'❌ Shortfall '+fmt(calcEmi(uw.reqLoan,m.roi,m.reqTenure)-eligEmi)+'/mo'):'—');
+    h+='<tr style="background:'+rowBg+';'+(isCurrent?'font-weight:800':'')+'">';
+    h+='<td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">'+(isCurrent?'<span style="background:#1d4ed8;color:#fff;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800">'+f+'% ←current</span>':f+'%')+'</td>';
+    h+='<td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right">'+fmt(allowed)+'</td>';
+    h+='<td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right;color:'+(eligEmi>0?'#16a34a':'#dc2626')+';font-weight:800">'+fmt(eligEmi)+'</td>';
+    h+='<td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:800;font-size:13px">'+fmt(maxL)+'</td>';
+    h+='<td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:11px;font-weight:700;color:'+feasColor+'">'+feasText+'</td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div></div>';
+
+  h+='</div>';
+  document.getElementById('pelig').innerHTML=h;
+}
+
+function flowBox(label,val,sub,col){
+  return '<div style="text-align:center">'
+    +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);font-weight:900;margin-bottom:3px">'+label+'</div>'
+    +'<div style="font-size:22px;font-weight:900;color:'+col+'">'+val+'</div>'
+    +'<div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px">'+sub+'</div></div>';
+}
+function flowArrow(sym,col){
+  return '<div style="text-align:center;font-size:20px;font-weight:900;color:'+col+';padding:0 8px">'+sym+'</div>';
+}
+function oblCircle(t,col){
+  return '<div style="width:30px;height:30px;border-radius:50%;background:'+col+';color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+t+'</div>';
+}
+function impCard(label,val,col,bg,extra){
+  return '<div style="padding:14px;text-align:center;background:'+bg+';'+extra+'">'
+    +'<div style="font-size:10px;text-transform:uppercase;font-weight:900;color:'+col+';margin-bottom:3px">'+label+'</div>'
+    +'<div style="font-size:20px;font-weight:900;color:'+col+'">'+val+'</div></div>';
+}
+
+// ── CAM SHEET TAB ─────────────────────────────────────────────────────
+function renderCam(data,uw){
+  var m=uw.m;
+  var a=data.applicant||{};
+  var h='';
+
+  // Applicant snapshot
+  h+='<div class="sub"><h3>Applicant Snapshot</h3>';
+  h+='<div class="snap-grid">';
+  h+=snap('Applicant Name',a.name||'—');
+  h+=snap('PAN',a.pan||'—');
+  h+=snap('Mobile',a.mobile||'—');
+  h+=snap('Score Model',a.scoreModel||'CIBIL');
+  h+=snap('Bureau Score','<span style="font-size:18px;font-weight:900;color:'+(uw.score>=750?'#16a34a':uw.score>=700?'#0891b2':uw.score>=650?'#d97706':'#dc2626')+'">'+uw.score+'</span>');
+  h+=snap('Report Date',a.reportDate||'—');
+  h+='</div></div>';
+
+  // UW params
+  h+='<div class="sub"><h3>Underwriting Parameters</h3>';
+  h+='<table class="cam"><tbody>';
+  h+=camRow('Net Salary',fmt(m.salary));
+  h+=camRow('FOIR Allowed',m.foir+'%');
+  h+=camRow('Allowed Obligation',fmt(uw.allowed));
+  h+=camRow('Bureau EMI (non-BT, non-CC)',fmt(uw.bureauEmi));
+  h+=camRow('CC Obligation (5%)',fmt(uw.ccObligation));
+  h+=camRow('Manual EMI',fmt(m.manualEmi));
+  h+=camRow('Total Obligation',fmt(uw.total));
+  h+='<tr class="cam-hi"><td>Eligible EMI</td><td style="color:#16a34a;font-size:16px;font-weight:900">'+fmt(uw.eligibleEmi)+'</td></tr>';
+  h+=camRow('Effective FOIR',uw.foirUsed.toFixed(2)+'%');
+  h+=camRow('Max Eligible Loan ('+m.reqTenure+' mo @ '+m.roi+'%)',fmt(uw.maxLoan));
+  h+='</tbody></table></div>';
+
+  if(uw.reqLoan>0){
+    h+='<div class="sub"><h3>Required Loan Analysis</h3>';
+    h+='<table class="cam"><tbody>';
+    h+=camRow('Required Loan',fmt(uw.reqLoan));
+    h+=camRow('Proposed EMI',fmt(uw.proposedEmi));
+    h+=camRow('FOIR If Added',uw.reqFoir.toFixed(1)+'%');
+    h+='<tr class="cam-hi"><td>Feasibility</td><td style="color:'+(uw.reqFeasible?'#16a34a':'#dc2626')+'">'+(uw.reqFeasible?'\u2705 Feasible':'\u274c Not Feasible — shortfall '+fmt(uw.proposedEmi-uw.eligibleEmi)+'/mo')+'</td></tr>';
+    h+='</tbody></table></div>';
+  }
+
+  // Editable grid
+  h+='<div class="sub"><h3>Editable CAM Loan Grid</h3>';
+  h+='<div class="callout call-blue" style="margin-bottom:10px">All loans are editable. Change EMI, type, status, ownership or tick BT to recalculate live.</div>';
+  h+=tblHead(['#','Lender','Type','Account','Loan Amt','Outstanding','Overdue','Since','EMI','Status','Ownership','BT','DPD']);
+  h+=camRows(uw.all);
+  h+='</tbody></table></div>';
+
+  if(uw.suggestions.length){
+    h+='<div class="sub"><h3>Suggestions</h3>';
+    h+=renderSuggestions(uw);
+    h+='</div>';
+  }
+
+  if(data.analystRemarks){
+    h+='<div class="sub"><h3>Analyst Remarks</h3>';
+    h+='<div class="callout call-amber">'+data.analystRemarks+'</div></div>';
+  }
+
+  document.getElementById('pcam').innerHTML=h;
+}
+
+function snap(label,val){
+  return '<div class="snap-box"><div class="snap-label">'+label+'</div><div class="snap-val">'+val+'</div></div>';
+}
+function camRow(k,v){
+  return '<tr><td>'+k+'</td><td style="font-weight:800">'+v+'</td></tr>';
+}
+
+function renderSuggestions(uw){
+  if(!uw.suggestions.length) return '<div class="callout call-green">\u2705 No actions needed. Profile is optimised.</div>';
+  var groups={};
+  uw.suggestions.forEach(function(s){
+    var key=s.lender+'|'+s.type;
+    if(!groups[key]) groups[key]={lender:s.lender,type:s.type,balance:s.balance,close:null,bt:null,cc:null};
+    if(s.tag==='Close') groups[key].close=s;
+    else if(s.tag==='BT') groups[key].bt=s;
+    else if(s.tag==='Pay CC') groups[key].cc=s;
+  });
+  var h='<div style="font-size:10px;color:#92400e;background:#fef9c3;border-radius:6px;padding:6px 12px;margin-bottom:8px;font-weight:700">Each loan shows two alternatives — pick ONE per loan.</div>';
+  Object.keys(groups).forEach(function(key){
+    var g=groups[key];
+    h+='<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:8px">';
+    h+='<div style="padding:8px 14px;background:#f8fafc;font-size:12px;font-weight:800;color:#0f172a">'+g.lender+' <span style="font-size:10px;color:#64748b;font-weight:600">'+g.type+'</span> <span style="float:right;font-size:11px;color:#64748b">O/S: '+fmt(g.balance)+'</span></div>';
+    h+='<div style="display:grid;grid-template-columns:'+(g.close&&g.bt?'1fr 1fr':'1fr')+'">';
+    if(g.close) h+='<div style="padding:10px 14px;background:#fef2f2;'+(g.bt?'border-right:1px solid #fde8e8':'')+'">'
+      +'<div style="font-size:10px;font-weight:800;color:#991b1b;margin-bottom:2px">🔴 Option A — Pre-Close</div>'
+      +'<div style="font-size:11px;color:#7f1d1d">'+g.close.action+'</div>'
+      +'<div style="font-size:15px;font-weight:900;color:#dc2626;margin-top:4px">+'+fmt(g.close.emi)+'/mo</div></div>';
+    if(g.bt) h+='<div style="padding:10px 14px;background:#eff6ff">'
+      +'<div style="font-size:10px;font-weight:800;color:#1e40af;margin-bottom:2px">🟢 Option B — Balance Transfer</div>'
+      +'<div style="font-size:11px;color:#1e3a8a">'+g.bt.action+'</div>'
+      +'<div style="font-size:15px;font-weight:900;color:#1d4ed8;margin-top:4px">+'+fmt(g.bt.emi)+'/mo</div></div>';
+    if(g.cc) h+='<div style="padding:10px 14px;background:#fffbeb">'
+      +'<div style="font-size:10px;font-weight:800;color:#92400e;margin-bottom:2px">🟡 Pay CC Outstanding</div>'
+      +'<div style="font-size:11px;color:#78350f">'+g.cc.action+'</div>'
+      +'<div style="font-size:15px;font-weight:900;color:#d97706;margin-top:4px">+'+fmt(g.cc.emi)+'/mo</div></div>';
+    h+='</div></div>';
+  });
+  return h;
+}
+
+// ── UNSECURED / SECURED / ALL TABS ────────────────────────────────────
+function renderUnsecured(uw){
+  var loans=uw.all.filter(function(l){return !SECURED.includes((l.type||'').toUpperCase());});
+  var h='<div class="sub"><h3>Unsecured Accounts</h3>';
+  h+=tblHead(['Sr','Lender','Type','Account','Disbursed','Outstanding','Overdue','Date','EMI','Status','DPD']);
+  h+=rowBlock(loans);
+  h+='</tbody></table></div>';
+  document.getElementById('punsec').innerHTML=h;
+}
+
+function renderSecured(uw){
+  var loans=uw.all.filter(function(l){return SECURED.includes((l.type||'').toUpperCase());});
+  var h='<div class="sub"><h3>Secured Accounts</h3>';
+  h+=tblHead(['Sr','Lender','Type','Account','Disbursed','Outstanding','Overdue','Date','EMI','Status','DPD']);
+  h+=rowBlock(loans);
+  h+='</tbody></table></div>';
+  document.getElementById('psec').innerHTML=h;
+}
+
+function renderAll(uw){
+  var h='<div class="sub"><h3>All Accounts</h3>';
+  h+=tblHead(['Sr','Lender','Type','Account','Disbursed','Outstanding','Overdue','Date','EMI','Status','DPD']);
+  h+=rowBlock(uw.all);
+  h+='</tbody></table></div>';
+  document.getElementById('pall').innerHTML=h;
+}
+
+// ── LOAD DEMO ─────────────────────────────────────────────────────────
+function loadDemo(){
+  document.getElementById('salary').value=0;
+  document.getElementById('manualEmi').value=0;
+  document.getElementById('reqLoan').value=0;
+  document.getElementById('foir').value=50;
+  document.getElementById('roi').value=18;
+  document.getElementById('reqTenure').value=36;
+  loanOverrides={};
+  var d={
+    applicant:{
+      name:'NASIR SHAIKH',pan:'—',dob:'—',
+      mobile:'9653123485',email:'naseebshaikh222@gmail.com',
+      address:'RM NO 741, BPT RAILWAY LINE, GATE NO 4, WADALA EAST, MUMBAI 400037',
+      reportDate:'18-04-2026',creditScore:734,scoreModel:'CIBIL TRANSUNION',
+      scoreRange:'300-900',refNo:'10864354016'
+    },
+    accountSummary:{
+      totalAccounts:12,activeAccounts:7,overdueAccounts:0,
+      currentBalance:187009,enquiriesLast24M:9,
+      newAccountsLast6M:4,newDelinquentLast6M:0
+    },
+    accounts:[
+      // ── ACTIVE ──
+      {srNo:1,lender:'KOTAK BANK',type:'PERSONAL LOAN',accountNumber:'XXXX4250',ownership:'INDIVIDUAL',
+       disbursedAmount:15000,currentBalance:15000,overdueAmount:0,creditLimit:0,
+       emiAmount:0,disbursedDate:'25-03-2026',status:'Active',worstDPD:'000',tenure:6},
+      {srNo:2,lender:'BAJAJ FIN LTD',type:'CONSUMER LOAN',accountNumber:'XXXX1965',ownership:'INDIVIDUAL',
+       disbursedAmount:15499,currentBalance:15499,overdueAmount:0,creditLimit:0,
+       emiAmount:2583,disbursedDate:'13-03-2026',status:'Active',worstDPD:'000',tenure:6},
+      {srNo:3,lender:'BAJAJ FIN LTD',type:'PERSONAL LOAN',accountNumber:'XXXX3733',ownership:'INDIVIDUAL',
+       disbursedAmount:101548,currentBalance:101548,overdueAmount:0,creditLimit:0,
+       emiAmount:4555,disbursedDate:'09-03-2026',status:'Active',worstDPD:'000',tenure:33},
+      {srNo:4,lender:'WHIZDMFINANCE',type:'PERSONAL LOAN',accountNumber:'XXXX4789',ownership:'INDIVIDUAL',
+       disbursedAmount:30000,currentBalance:30000,overdueAmount:0,creditLimit:0,
+       emiAmount:4770,disbursedDate:'01-03-2026',status:'Active',worstDPD:'000',tenure:7},
+      {srNo:5,lender:'HDB',type:'CONSUMER LOAN',accountNumber:'XXXX6110',ownership:'INDIVIDUAL',
+       disbursedAmount:25843,currentBalance:13385,overdueAmount:0,creditLimit:0,
+       emiAmount:3500,disbursedDate:'06-11-2025',status:'Active',worstDPD:'000',tenure:8},
+      {srNo:6,lender:'BAJAJ FIN LTD',type:'CONSUMER LOAN',accountNumber:'XXXX7315',ownership:'INDIVIDUAL',
+       disbursedAmount:29759,currentBalance:11159,overdueAmount:0,creditLimit:0,
+       emiAmount:3720,disbursedDate:'12-10-2025',status:'Active',worstDPD:'000',tenure:8},
+      {srNo:7,lender:'BAJAJ FIN LTD',type:'CONSUMER LOAN',accountNumber:'XXXX7211',ownership:'INDIVIDUAL',
+       disbursedAmount:2523,currentBalance:418,overdueAmount:0,creditLimit:0,
+       emiAmount:418,disbursedDate:'12-10-2025',status:'Active',worstDPD:'000',tenure:6},
+      // ── CLOSED ──
+      {srNo:8,lender:'HDFC BANK',type:'CONSUMER LOAN',accountNumber:'XXXX6041',ownership:'INDIVIDUAL',
+       disbursedAmount:30329,currentBalance:0,overdueAmount:0,creditLimit:0,
+       emiAmount:5055,disbursedDate:'16-06-2025',status:'Closed',worstDPD:'000',tenure:6},
+      {srNo:9,lender:'HDFC BANK',type:'CONSUMER LOAN',accountNumber:'XXXX7952',ownership:'INDIVIDUAL',
+       disbursedAmount:9699,currentBalance:0,overdueAmount:0,creditLimit:0,
+       emiAmount:0,disbursedDate:'15-01-2023',status:'Closed',worstDPD:'000'},
+      {srNo:10,lender:'HDFC BANK',type:'CONSUMER LOAN',accountNumber:'XXXX8090',ownership:'INDIVIDUAL',
+       disbursedAmount:52708,currentBalance:0,overdueAmount:0,creditLimit:0,
+       emiAmount:0,disbursedDate:'15-01-2023',status:'Closed',worstDPD:'000'},
+      {srNo:11,lender:'HDFC BANK',type:'CONSUMER LOAN',accountNumber:'XXXX4323',ownership:'INDIVIDUAL',
+       disbursedAmount:33071,currentBalance:0,overdueAmount:0,creditLimit:0,
+       emiAmount:0,disbursedDate:'26-02-2022',status:'Closed',worstDPD:'000'},
+      {srNo:12,lender:'HOME CREDIT',type:'CONSUMER LOAN',accountNumber:'XXXX0102',ownership:'INDIVIDUAL',
+       disbursedAmount:14368,currentBalance:0,overdueAmount:0,creditLimit:0,
+       emiAmount:0,disbursedDate:'08-10-2019',status:'Closed',worstDPD:'000'}
+    ],
+    enquiries:[
+      {lender:'INDUSIND BANK',date:'17-04-2026',purpose:'Personal Loan',amount:0},
+      {lender:'KOTAK BANK',date:'25-03-2026',purpose:'Personal Loan',amount:0},
+      {lender:'KRAZYBEE',date:'10-03-2026',purpose:'Personal Loan',amount:0},
+      {lender:'EARLYSALARY',date:'10-03-2026',purpose:'Personal Loan',amount:0},
+      {lender:'IDFC FIRST BANK',date:'02-03-2026',purpose:'Personal Loan',amount:0},
+      {lender:'KOTAK BANK',date:'02-03-2026',purpose:'Personal Loan',amount:0},
+      {lender:'KOTAK BANK',date:'01-03-2026',purpose:'Personal Loan',amount:0},
+      {lender:'BAJAJ FIN LTD',date:'01-03-2026',purpose:'Personal Loan',amount:0},
+      {lender:'RINGKISSHTSICREV',date:'01-03-2026',purpose:'Personal Loan',amount:0},
+      {lender:'BAJAJ FIN LTD',date:'12-10-2025',purpose:'Consumer Loan',amount:0},
+      {lender:'HDFC BANK',date:'15-06-2025',purpose:'Credit Card',amount:0},
+      {lender:'HDFC BANK',date:'15-06-2025',purpose:'Consumer Loan',amount:0},
+      {lender:'INCRED FINANCE',date:'18-05-2025',purpose:'Personal Loan',amount:0},
+      {lender:'POONAFIN',date:'18-05-2025',purpose:'Personal Loan',amount:0},
+      {lender:'Home Credit',date:'19-10-2024',purpose:'Personal Loan',amount:0},
+      {lender:'Home Credit',date:'12-12-2023',purpose:'Personal Loan',amount:0},
+      {lender:'Home Credit',date:'01-07-2023',purpose:'Personal Loan',amount:0}
+    ],
+    analystRemarks:'CIBIL Score 734 (GOOD). 7 active loans all unsecured — high loan count. 9 enquiries in last 3 months is a major red flag (credit hungry). Total active O/S ₹1,87,009. No overdues. All payments on time. Salary input required for eligibility calculation.'
+  };
+  currentData=d;
+  renderCase(d);
+}
+
+// ── FILE SELECT ───────────────────────────────────────────────────────
+function fileSelected(inp){
+  selectedFile=inp.files[0]||null;
+  updateBtn();
+}
+function updateBtn(){
+  var key=(document.getElementById('apiKey').value||'').trim()||getSettings().apiKey||'';
+  var ok=selectedFile&&key.length>20;
+  document.getElementById('goBtn').disabled=!ok;
+}
+window.addEventListener('DOMContentLoaded', function(){
+  loadSettings();
+  loadDemo();
+  document.getElementById('apiKey').addEventListener('input',updateBtn);
+});
+
+function recalcIfLoaded(){ if(currentData) renderCase(currentData); }
+
+// ── PDF ANALYZE ───────────────────────────────────────────────────────
+async function analyzeUploadedPdf(){
+  var key=(document.getElementById('apiKey').value||'').trim()||getSettings().apiKey||'';
+  if(!selectedFile){showErr('Please choose a PDF file first.');return;}
+  if(!key||key.length<20){showErr('Please enter your Claude API key in Settings first.');return;}
+  hideErr();
+  document.getElementById('resultArea').style.display='none';
+  document.getElementById('topKpis').style.display='none';
+  document.getElementById('livebar').style.display='none';
+  document.getElementById('loadingSpinner').style.display='block';
+  var reader=new FileReader();
+  reader.onload=async function(e){
+    var b64=e.target.result.split(',')[1];
+    await analyzePdf(b64,key);
+  };
+  reader.onerror=function(){showErr('Could not read PDF file.');};
+  reader.readAsDataURL(selectedFile);
+}
+
+function extractJson(text){
+  var start=text.indexOf('{');
+  var end=text.lastIndexOf('}');
+  if(start===-1||end===-1) throw new Error('No JSON object found in API response');
+  return text.slice(start,end+1);
+}
+
+async function analyzePdf(b64,key){
+  var prompt='You are a senior Indian credit analyst. Read this CIBIL/CRIF bureau PDF and return ONLY valid JSON with no markdown or explanation. Schema: {"applicant":{"name":"","pan":"","dob":"","mobile":"","email":"","address":"","reportDate":"","creditScore":0,"scoreModel":"","scoreRange":"","refNo":""},"accountSummary":{"totalAccounts":0,"activeAccounts":0,"overdueAccounts":0,"currentBalance":0,"enquiriesLast24M":0,"newAccountsLast6M":0,"newDelinquentLast6M":0},"accounts":[{"srNo":1,"lender":"","type":"PERSONAL LOAN","accountNumber":"","ownership":"INDIVIDUAL","disbursedAmount":0,"currentBalance":0,"overdueAmount":0,"creditLimit":0,"emiAmount":0,"disbursedDate":"","status":"Active","worstDPD":"000","tenure":0}],"enquiries":[{"lender":"","date":"","purpose":"","amount":0}],"analystRemarks":""}';
+  try{
+    console.log('📤 Sending PDF to Claude API, size:', Math.round(b64.length/1024)+'KB');
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-beta':'pdfs-2024-09-25',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:8000,
+        messages:[{role:'user',content:[
+          {type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},
+          {type:'text',text:prompt}
+        ]}]
+      })
+    });
+    console.log('📥 API response status:', resp.status);
+    var respText=await resp.text();
+    console.log('📥 Raw response:', respText.slice(0,500));
+    if(!resp.ok){
+      var eObj={};try{eObj=JSON.parse(respText);}catch(x){}
+      document.getElementById('loadingSpinner').style.display='none';
+      showErr('API error '+resp.status+': '+(eObj.error&&eObj.error.message||respText.slice(0,300)));
+      return;
+    }
+    var data=JSON.parse(respText);
+    var text=(data.content&&data.content[0]&&data.content[0].text||'');
+    console.log('📝 Claude text response length:', text.length);
+    if(!text){
+      document.getElementById('loadingSpinner').style.display='none';
+      showErr('Empty response from Claude. Full response: '+JSON.stringify(data).slice(0,300));
+      return;
+    }
+    var raw=extractJson(text);
+    var parsed=JSON.parse(raw);
+    currentData=parsed;
+    loanOverrides={};
+    document.getElementById('loadingSpinner').style.display='none';
+    renderCase(parsed);
+    setTimeout(function(){autoSave(parsed,'PDF');},1000);
+  }catch(e){
+    console.error('analyzePdf error:', e);
+    document.getElementById('loadingSpinner').style.display='none';
+    showErr('Error: '+e.message+' — Open browser Console (F12) for full details');
+  }
+}
+
+
+// ── DOWNLOAD FUNCTIONS ────────────────────────────────────────────────
+
+function downloadOriginalData(){
+  if(!currentData){alert('Load a report first.');return;}
+  var json=JSON.stringify(currentData,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='Bureau_Data_'+(currentData.applicant&&currentData.applicant.name||'Report').replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+
+function downloadOriginalPdf(){
+  if(!window._originalPdfB64){alert('No PDF uploaded in this session.');return;}
+  var bin=atob(window._originalPdfB64);
+  var arr=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  var blob=new Blob([arr],{type:'application/pdf'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='Original_Bureau_Report_'+new Date().toISOString().slice(0,10)+'.pdf';
+  a.click();
+}
+
+function downloadCAMPdf(){
+  if(!currentData){alert('Load a report first.');return;}
+  var uw=underwrite(currentData,getM());
+  var a=currentData.applicant||{};
+  var m=uw.m;
+  var w=window.open('','_blank','width=900,height=700');
+  var h='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CAM Report</title>';
+  h+='<style>*{box-sizing:border-box;margin:0;padding:0;font-family:\'Segoe UI\',Arial,sans-serif}';
+  h+='body{background:#fff;color:#1e293b;font-size:12px;padding:24px}';
+  h+='.header{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:12px;padding:18px 24px;margin-bottom:16px}';
+  h+='.header h1{font-size:20px;font-weight:900}.header p{font-size:11px;opacity:.7;margin-top:3px}';
+  h+='.section{border:1px solid #e2e8f0;border-radius:10px;margin-bottom:14px;overflow:hidden}';
+  h+='.sec-title{background:#f8fafc;padding:10px 14px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#475569;border-bottom:1px solid #e2e8f0}';
+  h+='.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0}';
+  h+='.kpi{padding:12px 14px;border-right:1px solid #e2e8f0;text-align:center}';
+  h+='.kpi:last-child{border-right:none}.kpi .k{font-size:9px;text-transform:uppercase;color:#6b7280;font-weight:800;margin-bottom:3px}.kpi .v{font-size:18px;font-weight:900;color:#1e3a8a}';
+  h+='table{width:100%;border-collapse:collapse;font-size:11px}';
+  h+='th{background:#0f172a;color:#fff;padding:7px 8px;text-align:left;font-size:10px;font-weight:900}';
+  h+='td{padding:6px 8px;border-bottom:1px solid #f1f5f9}';
+  h+='.green{color:#16a34a;font-weight:900}.red{color:#dc2626;font-weight:900}.blue{font-weight:900;color:#1d4ed8}';
+  h+='.snap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:14px}';
+  h+='.snap-box{background:#f8fafc;border-radius:8px;padding:8px 10px}';
+  h+='.snap-label{font-size:9px;text-transform:uppercase;font-weight:900;color:#64748b;margin-bottom:2px}';
+  h+='.snap-val{font-size:13px;font-weight:800}';
+  h+='@media print{body{padding:10px}button{display:none!important}@page{margin:10mm;size:A4}}';
+  h+='</style></head><body>';
+
+  // Header
+  h+='<div class="header"><h1>CashMela — Credit Assessment Module</h1>';
+  h+='<p>Generated: '+new Date().toLocaleString('en-IN')+' &nbsp;|&nbsp; Applicant: '+(a.name||'—')+' &nbsp;|&nbsp; Score: '+uw.score+'</p></div>';
+
+  // Print button
+  h+='<div style="text-align:right;margin-bottom:14px"><button onclick="window.print()" style="background:#1d4ed8;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:12px;font-weight:800;cursor:pointer">🖨️ Print / Save as PDF</button></div>';
+
+  // Applicant
+  h+='<div class="section"><div class="sec-title">Applicant Details</div><div class="snap">';
+  h+=pdfSnap('Name',a.name||'—')+pdfSnap('PAN',a.pan||'—')+pdfSnap('Mobile',a.mobile||'—');
+  h+=pdfSnap('Score',String(uw.score))+pdfSnap('Score Model',a.scoreModel||'CIBIL')+pdfSnap('Report Date',a.reportDate||'—');
+  h+='</div></div>';
+
+  // Eligibility KPIs
+  h+='<div class="section"><div class="sec-title">Eligibility Summary</div><div class="kpi-row">';
+  h+=pdfKpi('Net Salary',fmt(m.salary))+pdfKpi('FOIR Allowed',m.foir+'%')+pdfKpi('Allowed Obligation',fmt(uw.allowed))+pdfKpi('Eligible EMI',fmt(uw.eligibleEmi));
+  h+=pdfKpi('Bureau EMI',fmt(uw.bureauEmi))+pdfKpi('CC Obligation',fmt(uw.ccObligation))+pdfKpi('Total Obligation',fmt(uw.total))+pdfKpi('Effective FOIR',uw.foirUsed.toFixed(1)+'%');
+  h+=pdfKpi('Max Loan ('+m.reqTenure+'mo)',fmt(uw.maxLoan))+pdfKpi('BT Outstanding',fmt(uw.btTotal))+pdfKpi('Required Loan',fmt(uw.reqLoan))+pdfKpi('Decision',uw.decision);
+  h+='</div></div>';
+
+  // Loan table
+  h+='<div class="section"><div class="sec-title">Loan Accounts</div>';
+  h+='<table><thead><tr><th>#</th><th>Lender</th><th>Type</th><th>Account</th><th>Disbursed</th><th>Outstanding</th><th>EMI</th><th>Status</th><th>BT</th><th>DPD</th></tr></thead><tbody>';
+  uw.all.forEach(function(l,i){
+    var bt=l.bt?'<span style="background:#16a34a;color:#fff;border-radius:4px;padding:1px 5px;font-size:9px">BT</span>':'—';
+    var sc=l.status==='Active'?'green':'';
+    h+='<tr><td>'+(i+1)+'</td><td class="blue">'+l.lender+'</td><td>'+l.type+'</td><td style="font-size:10px;font-family:monospace">'+(l.accountNumber||'—')+'</td>';
+    h+='<td>'+fmt(l.disbursedAmount||0)+'</td><td>'+fmt(l.currentBalance||0)+'</td>';
+    h+='<td class="'+(l.bt?'green':'')+'">'+fmt(l.effectiveEmi)+'</td>';
+    h+='<td class="'+sc+'">'+l.status+'</td><td>'+bt+'</td><td>'+(l.worstDPD||'—')+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+
+  // Suggestions not included in CAM PDF
+
+  if(currentData.analystRemarks){
+    h+='<div class="section"><div class="sec-title">Analyst Remarks</div><div style="padding:12px 14px;font-size:12px">'+currentData.analystRemarks+'</div></div>';
+  }
+
+  h+='</body></html>';
+  w.document.write(h);
+  w.document.close();
+}
+
+function downloadAIReport(){
+  if(!currentData){alert('Load a report first.');return;}
+  var uw=underwrite(currentData,getM());
+  var a=currentData.applicant||{};
+  var m=uw.m;
+  var w=window.open('','_blank','width=900,height=700');
+  var scoreColor=uw.score>=750?'#16a34a':uw.score>=700?'#0891b2':uw.score>=650?'#d97706':'#dc2626';
+  var scoreLabel=uw.score>=750?'Excellent':uw.score>=700?'Good':uw.score>=650?'Fair':'Poor';
+  var h='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Credit Insights</title>';
+  h+='<style>*{box-sizing:border-box;margin:0;padding:0;font-family:\'Segoe UI\',Arial,sans-serif}';
+  h+='body{background:#f0f4f8;color:#1e293b;font-size:13px;padding:24px}';
+  h+='.page{background:#fff;border-radius:16px;padding:28px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}';
+  h+='.ai-header{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-radius:14px;padding:20px 24px;margin-bottom:18px}';
+  h+='.ai-header h1{font-size:22px;font-weight:900}.ai-header p{font-size:12px;opacity:.75;margin-top:4px}';
+  h+='.score-big{font-size:64px;font-weight:900;color:'+scoreColor+';line-height:1}';
+  h+='.section-title{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#1e3a8a;padding-bottom:8px;border-bottom:2px solid #e2e8f0;margin-bottom:12px}';
+  h+='.tip{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px}';
+  h+='.flag{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-radius:8px;margin-bottom:6px;font-size:12px}';
+  h+='.flag-high{background:#fef2f2}.flag-med{background:#fffbeb}.flag-low{background:#f0fdf4}';
+  h+='.badge{font-size:10px;font-weight:900;padding:2px 8px;border-radius:999px;color:#fff;flex-shrink:0;margin-top:1px}';
+  h+='.sug-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #fef9c3;font-size:12px}';
+  h+='@media print{body{background:#fff;padding:10px}button{display:none!important}@page{margin:10mm;size:A4}}';
+  h+='</style></head><body>';
+
+  h+='<div class="ai-header"><h1>🤖 AI Credit Insights Report</h1>';
+  h+='<p>Applicant: '+(a.name||'—')+' &nbsp;|&nbsp; PAN: '+(a.pan||'—')+' &nbsp;|&nbsp; Generated: '+new Date().toLocaleString('en-IN')+'</p></div>';
+  h+='<div style="text-align:right;margin-bottom:14px"><button onclick="window.print()" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:12px;font-weight:800;cursor:pointer">🖨️ Print / Save as PDF</button></div>';
+
+  // Score section
+  h+='<div class="page"><div class="section-title">Bureau Score Analysis</div>';
+  h+='<div style="display:flex;align-items:center;gap:24px;margin-bottom:16px">';
+  h+='<div class="score-big">'+uw.score+'</div>';
+  h+='<div><div style="font-size:18px;font-weight:900;color:'+scoreColor+'">'+scoreLabel+'</div>';
+  h+='<div style="font-size:12px;color:#6b7280;margin-top:4px">Model: '+(a.scoreModel||'CIBIL')+' &nbsp;|&nbsp; Range: '+(a.scoreRange||'300-900')+'</div>';
+  h+='<div style="height:10px;background:#f1f5f9;border-radius:999px;margin-top:8px;width:200px;overflow:hidden">';
+  h+='<div style="height:100%;width:'+Math.round((uw.score-300)/600*100)+'%;background:'+scoreColor+';border-radius:999px"></div></div></div></div>';
+  h+='<div class="section-title" style="margin-top:4px">Score Improvement Tips</div>';
+  var tips=[];
+  if(uw.score<750) tips.push('💳 Pay all EMIs on time — single most impactful factor for score improvement');
+  if(uw.enquiries>4) tips.push('🔍 Reduce loan enquiries — '+uw.enquiries+' in 24M is high, avoid applying to multiple lenders');
+  if(uw.activeCCCount>0) tips.push('📊 Keep CC utilisation below 30% of limit — high utilisation hurts score significantly');
+  if(uw.activePL>2) tips.push('⚠️ Too many active unsecured loans ('+uw.activePL+') — close smaller ones to improve credit mix');
+  if(uw.overdues>0) tips.push('🚨 Clear overdue amount '+fmt(uw.overdues)+' immediately — overdue is the biggest score killer');
+  if(!tips.length) tips.push('✅ Profile is clean — maintain current repayment discipline');
+  tips.forEach(function(t){h+='<div class="tip"><span style="font-size:16px">'+t.charAt(0)+'</span><div>'+t.slice(1)+'</div></div>';});
+  h+='</div>';
+
+  // Risk flags
+  h+='<div class="page"><div class="section-title">Loan Portfolio Risk View</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">';
+  h+=aiKpi('Active PL/CL',uw.activePL,'#1d4ed8','#eff6ff')+aiKpi('Active CC',uw.activeCCCount,'#ea580c','#fff7ed');
+  h+=aiKpi('Secured',uw.activeSecured,'#16a34a','#f0fdf4')+aiKpi('Overdue',uw.overdues>0?fmt(uw.overdues):'✔',uw.overdues>0?'#dc2626':'#16a34a',uw.overdues>0?'#fef2f2':'#f0fdf4');
+  h+='</div><div class="section-title">Risk Flags</div>';
+  var flags=[];
+  if(uw.overdues>0) flags.push({lvl:'High',col:'#dc2626',bg:'flag-high',msg:'Active overdue '+fmt(uw.overdues)+' — immediate red flag for all lenders'});
+  if(uw.foirBreached) flags.push({lvl:'High',col:'#dc2626',bg:'flag-high',msg:'FOIR '+uw.foirUsed.toFixed(1)+'% exceeds '+m.foir+'% policy limit'});
+  if(uw.enquiries>8) flags.push({lvl:'High',col:'#dc2626',bg:'flag-high',msg:uw.enquiries+' enquiries in 24M — credit hungry behaviour'});
+  if(uw.activePL>3) flags.push({lvl:'High',col:'#dc2626',bg:'flag-high',msg:'More than 3 active unsecured loans — high concentration risk'});
+  if(uw.enquiries>4&&uw.enquiries<=8) flags.push({lvl:'Medium',col:'#d97706',bg:'flag-med',msg:uw.enquiries+' enquiries in 24M — moderate concern'});
+  if(uw.activeCCCount>3) flags.push({lvl:'Medium',col:'#d97706',bg:'flag-med',msg:uw.activeCCCount+' active credit cards — review utilisation'});
+  if(!flags.length) flags.push({lvl:'Low',col:'#16a34a',bg:'flag-low',msg:'No major risk flags — profile within acceptable norms'});
+  flags.forEach(function(f){
+    h+='<div class="flag '+f.bg+'"><span class="badge" style="background:'+f.col+'">'+f.lvl+'</span><div>'+f.msg+'</div></div>';
+  });
+  h+='</div>';
+
+  // Eligibility improvement
+  if(uw.suggestions.length){
+    var ts=uw.suggestions.filter(function(x){return x.tag==='Close';}).reduce(function(s,x){return s+x.emi;},0);
+    var al=pvFromEmi(ts,m.roi,m.reqTenure);
+    h+='<div class="page"><div class="section-title">💡 Eligibility Improvement Plan</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">';
+    h+=aiKpi('Actions',uw.suggestions.length,'#b45309','#fffbeb')+aiKpi('EMI Saving',fmt(ts)+'/mo','#15803d','#f0fdf4')+aiKpi("Add'l Loan",fmt(al),'#1d4ed8','#eff6ff');
+    h+='</div>';
+    uw.suggestions.forEach(function(s){
+      h+='<div class="sug-row" style="background:#fffbeb;border-radius:8px;margin-bottom:6px">';
+      h+='<div><strong>'+s.priority+' '+s.lender+'</strong> <span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:900">'+s.tag+'</span><br><span style="font-size:11px;color:#78350f">'+s.action+'</span></div>';
+      h+='<div style="font-size:15px;font-weight:900;color:#16a34a;white-space:nowrap;margin-left:12px">+'+fmt(s.emi)+'/mo</div></div>';
+    });
+    h+='<div style="background:#f0fdf4;border-radius:8px;padding:10px 14px;font-size:12px;font-weight:900;color:#166534;margin-top:8px">';
+    h+='→ If all actioned — Monthly saving: '+fmt(ts)+' → Additional eligible loan: ~'+fmt(al)+'</div>';
+    h+='</div>';
+  }
+
+  h+='</body></html>';
+  w.document.write(h);
+  w.document.close();
+}
+
+function pdfSnap(label,val){
+  return '<div class="snap-box"><div class="snap-label">'+label+'</div><div class="snap-val">'+val+'</div></div>';
+}
+function pdfKpi(k,v){
+  return '<div class="kpi"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
+}
+function aiKpi(k,v,col,bg){
+  return '<div style="background:'+bg+';border-radius:10px;padding:12px;text-align:center">'
+    +'<div style="font-size:9px;text-transform:uppercase;font-weight:900;color:'+col+';margin-bottom:3px">'+k+'</div>'
+    +'<div style="font-size:22px;font-weight:900;color:'+col+'">'+v+'</div></div>';
+}
+</script>
+</body>
+</html>
