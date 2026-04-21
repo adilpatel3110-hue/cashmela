@@ -456,8 +456,8 @@ async function pullCrif(){
   if(!name||!mobile||!pan){status.innerHTML='<span style="color:#dc2626">⚠️ Enter Name, Mobile and PAN</span>';return;}
   if(mobile.length!==10){status.innerHTML='<span style="color:#dc2626">⚠️ Mobile must be 10 digits</span>';return;}
   if(pan.length!==10){status.innerHTML='<span style="color:#dc2626">⚠️ PAN must be 10 characters</span>';return;}
-  if(!s.crifProxy) s.crifProxy=s.crifUrl||'';
-  if(!s.crifToken||!s.crifProxy){status.innerHTML='<span style="color:#dc2626">⚠️ Set CRIF token & URL in Settings first</span>';return;}
+  if(!s.crifToken||!s.crifUrl){status.innerHTML='<span style="color:#dc2626">⚠️ Set CRIF token & URL in Settings first</span>';return;}
+  if(!s.apiKey){status.innerHTML='<span style="color:#dc2626">⚠️ Set Claude API key in Settings first</span>';return;}
 
   status.innerHTML='<span style="color:#1d4ed8">⏳ Pulling CRIF report for '+name+'...</span>';
   document.getElementById('crifBtn').disabled=true;
